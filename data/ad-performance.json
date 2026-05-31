@@ -1,0 +1,6 @@
+{
+  "ad-1": { "ctr": 0.021, "completions": 1200, "label": "Sample Ad 1" },
+  "ad-2": { "ctr": 0.048, "completions": 3400, "label": "Sample Ad 2" },
+  "ad-3": { "ctr": 0.033, "completions": 2100, "label": "Sample Ad 3" },
+  "ad-4": { "ctr": 0.061, "completions": 5100, "label": "Sample Ad 4" }
+}
