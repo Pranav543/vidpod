@@ -1,26 +1,30 @@
 import type { AdMode } from "./types";
 
+/** Mockup: Auto = green, Static = blue, A/B = orange */
 export const MODE_COLORS: Record<
   AdMode,
-  { badge: string; track: string; border: string; text: string }
+  { badge: string; track: string; border: string; text: string; icon: string }
 > = {
-  static: {
-    badge: "bg-green-200",
-    track: "bg-green-300",
-    border: "border-green-800",
-    text: "text-green-900",
-  },
   auto: {
-    badge: "bg-blue-200",
-    track: "bg-blue-300",
-    border: "border-blue-800",
-    text: "text-blue-900",
+    badge: "bg-[#dcfce7]",
+    track: "bg-[#86efac]/90",
+    border: "border-[#22c55e]",
+    text: "text-[#166534]",
+    icon: "A",
+  },
+  static: {
+    badge: "bg-[#dbeafe]",
+    track: "bg-[#93c5fd]/90",
+    border: "border-[#3b82f6]",
+    text: "text-[#1e40af]",
+    icon: "S",
   },
   ab: {
-    badge: "bg-orange-200",
-    track: "bg-orange-300",
-    border: "border-orange-800",
-    text: "text-orange-900",
+    badge: "bg-[#ffedd5]",
+    track: "bg-[#fdba74]/90",
+    border: "border-[#f97316]",
+    text: "text-[#9a3412]",
+    icon: "A/B",
   },
 };
 
@@ -30,7 +34,7 @@ export function generateWaveformBars(count: number, seed = 42): number[] {
   for (let i = 0; i < count; i++) {
     s = (s * 16807 + 0) % 2147483647;
     const r = (s % 1000) / 1000;
-    bars.push(0.15 + r * 0.85);
+    bars.push(0.12 + r * 0.88);
   }
   return bars;
 }

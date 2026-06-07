@@ -1,14 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #09090b;
+  --vp-bg: #f4f4f5;
+  --vp-surface: #ffffff;
+  --vp-border: #e5e7eb;
+  --vp-text: #111827;
+  --vp-muted: #6b7280;
+  --vp-auto-bg: #dcfce7;
+  --vp-auto-text: #166534;
+  --vp-static-bg: #dbeafe;
+  --vp-static-text: #1e40af;
+  --vp-ab-bg: #ffedd5;
+  --vp-ab-text: #9a3412;
+  --vp-timeline: #f3e8ff;
+  --vp-timeline-wave: #ffffff;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--vp-bg);
+  color: var(--vp-text);
+  font-family: var(--font-inter, system-ui, -apple-system, "Segoe UI", sans-serif);
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -16,5 +28,5 @@ body {
 }
 
 input[type="range"] {
-  accent-color: #27272a;
+  accent-color: #111827;
 }
