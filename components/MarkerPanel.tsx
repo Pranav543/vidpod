@@ -1,76 +1,87 @@
 "use client";
 
-import type { AdPerformance } from "@/lib/marker-config";
-import type { Ad, AdMarker } from "@/lib/types";
-import { Plus, Shuffle } from "lucide-react";
+import type { AdMarker } from "@/lib/types";
+import { Plus, Sparkles } from "lucide-react";
 import { ExportButton } from "./ExportButton";
-import { MarkerRow, cycleMode } from "./MarkerRow";
+import { MarkerRow } from "./MarkerRow";
 
 type MarkerPanelProps = {
-  adsCatalog: Ad[];
   markers: AdMarker[];
   selectedId: string | null;
   episodeReady: boolean;
-  performance: Record<string, AdPerformance>;
   onSelect: (id: string) => void;
-  onAdd: () => void;
-  onRandomMarker: () => void;
+  onCreateMarker: () => void;
+  onAutoPlace: () => void;
+  onEdit: (id: string) => void;
+  onViewAbResults: (id: string) => void;
   onDelete: (id: string) => void;
-  onModeChange: (id: string, mode: AdMarker["mode"]) => void;
-  onPickAd: (id: string) => void;
 };
 
 export function MarkerPanel({
-  adsCatalog,
   markers,
   selectedId,
   episodeReady,
-  performance,
   onSelect,
-  onAdd,
-  onRandomMarker,
+  onCreateMarker,
+  onAutoPlace,
+  onEdit,
+  onViewAbResults,
   onDelete,
-  onModeChange,
-  onPickAd,
 }: MarkerPanelProps) {
   const canExport =
     episodeReady && markers.some((m) => (m.adIds?.length ?? 0) > 0);
 
   return (
-    <div className="flex w-[412px] shrink-0 flex-col rounded-2xl border border-zinc-200 bg-white shadow-sm">
-      <div className="border-b border-zinc-100 px-5 py-4">
-        <p className="text-base font-semibold text-zinc-900">Ad markers</p>
-        {!episodeReady && (
-          <p className="mt-1 text-xs text-amber-600">
-            Upload a main video and wait for it to load before adding markers.
-          </p>
-        )}
+    <div className="flex w-[360px] shrink-0 flex-col rounded-xl border border-[#e5e7eb] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06)]">
+      <div className="flex items-center justify-between px-4 py-3">
+        <h2 className="text-[13px] font-semibold text-[#111827]">Ad markers</h2>
+        <span className="text-[11px] text-[#9ca3af]">
+          {markers.length} marker{markers.length === 1 ? "" : "s"}
+        </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
+      <div className="flex max-h-[300px] flex-col gap-0.5 overflow-y-auto px-3 pb-2">
         {markers.length === 0 && (
-          <p className="py-8 text-center text-sm text-zinc-400">
+          <p className="py-10 text-center text-sm text-[#9ca3af]">
             {episodeReady
-              ? "No markers yet. Add one at the playhead."
-              : "Markers will appear here after your video is ready."}
+              ? "No markers yet. Create one at the playhead."
+              : "Load a video to add markers."}
           </p>
         )}
-        {markers.map((m) => (
+        {markers.map((m, i) => (
           <MarkerRow
             key={m.id}
-            adsCatalog={adsCatalog}
+            index={i + 1}
             marker={m}
             selected={m.id === selectedId}
-            performance={performance}
             onSelect={() => onSelect(m.id)}
-            onModeCycle={() => onModeChange(m.id, cycleMode(m.mode))}
-            onPickAd={() => onPickAd(m.id)}
+            onEdit={() => onEdit(m.id)}
+            onViewAbResults={() => onViewAbResults(m.id)}
+            showAbResults={m.mode === "ab" && (m.adIds?.length ?? 0) >= 2}
             onDelete={() => onDelete(m.id)}
           />
         ))}
       </div>
 
-      <div className="flex flex-col gap-3 border-t border-zinc-100 p-4">
+      <div className="flex flex-col gap-2 border-t border-[#f3f4f6] p-3">
+        <button
+          type="button"
+          onClick={onCreateMarker}
+          disabled={!episodeReady}
+          className="flex h-9 w-full items-center justify-center gap-1 rounded-lg bg-[#111827] text-[13px] font-medium text-white transition hover:bg-[#1f2937] disabled:opacity-40"
+        >
+          Create ad marker
+          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+        </button>
+        <button
+          type="button"
+          onClick={onAutoPlace}
+          disabled={!episodeReady}
+          className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-[#e5e7eb] bg-white text-[13px] font-medium text-[#374151] transition hover:bg-[#f9fafb] disabled:opacity-40"
+        >
+          <Sparkles className="h-3.5 w-3.5 text-[#9ca3af]" />
+          Automatically find ad breaks
+        </button>
         <ExportButton
           disabled={!canExport}
           disabledReason={
@@ -81,27 +92,6 @@ export function MarkerPanel({
                 : undefined
           }
         />
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={onAdd}
-            disabled={!episodeReady}
-            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-40"
-          >
-            <Plus className="h-4 w-4" />
-            Add marker
-          </button>
-          <button
-            type="button"
-            onClick={onRandomMarker}
-            disabled={!episodeReady}
-            title="Random time and mode"
-            className="flex items-center justify-center gap-2 rounded-lg border border-zinc-200 px-4 py-2.5 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-40"
-          >
-            <Shuffle className="h-4 w-4" />
-            Random
-          </button>
-        </div>
       </div>
     </div>
   );
