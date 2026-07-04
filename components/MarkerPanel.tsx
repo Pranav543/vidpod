@@ -1,7 +1,7 @@
 "use client";
 
 import type { AdMarker } from "@/lib/types";
-import { Plus, Sparkles } from "lucide-react";
+import { IconPlus, IconSparkles, figmaIconProps } from "./icons";
 import { ExportButton } from "./ExportButton";
 import { MarkerRow } from "./MarkerRow";
 
@@ -71,7 +71,7 @@ export function MarkerPanel({
           className="flex h-9 w-full items-center justify-center gap-1 rounded-md bg-[#111827] text-[13px] font-medium text-white transition hover:bg-[#1f2937] disabled:opacity-40"
         >
           Create ad marker
-          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          <IconPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>
         <button
           type="button"
@@ -79,7 +79,7 @@ export function MarkerPanel({
           disabled={!episodeReady}
           className="flex h-9 w-full items-center justify-center gap-2 rounded-md border border-[#e5e7eb] bg-white text-[13px] font-medium text-[#374151] transition hover:bg-[#f9fafb] disabled:opacity-40"
         >
-          <Sparkles className="h-3.5 w-3.5 text-[#9ca3af]" />
+          <IconSparkles {...figmaIconProps({ size: 14, className: "text-[#9ca3af]" })} />
           Automatically find ad breaks
         </button>
         <ExportButton

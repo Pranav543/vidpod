@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  IconFastForward,
+  IconJumpToEnd,
+  IconJumpToStart,
+  IconPause,
+  IconPlay,
+  IconRewind,
+  IconSkip10Back,
+  IconSkip10Forward,
+} from "./icons";
 import { type ReactNode, RefObject } from "react";
 
 type VideoPlayerProps = {
@@ -45,125 +55,6 @@ function CircleJumpButton({
   );
 }
 
-function IconJumpToStart() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" aria-hidden>
-      <rect x="1.5" y="2" width="1.2" height="9" />
-      <path d="M10.8 6.5L4.8 2.8v7.4L10.8 6.5z" />
-    </svg>
-  );
-}
-
-function IconJumpToEnd() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 13 13" fill="currentColor" aria-hidden>
-      <path d="M2.2 6.5L8.2 2.8v7.4L2.2 6.5z" />
-      <rect x="10.3" y="2" width="1.2" height="9" />
-    </svg>
-  );
-}
-
-function IconSkip10Back({ className }: { className?: string }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      className={className}
-      aria-hidden
-    >
-      <path
-        d="M9 5.25V9"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-      />
-      <path
-        d="M5.1 5.55A6.25 6.25 0 1 1 9 15.25"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-      />
-      <path
-        d="M3.75 5.55L5.1 5.55L5.1 6.9"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function IconSkip10Forward({ className }: { className?: string }) {
-  return (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      className={className}
-      aria-hidden
-    >
-      <path
-        d="M9 5.25V9"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-      />
-      <path
-        d="M12.9 5.55A6.25 6.25 0 1 0 9 15.25"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-      />
-      <path
-        d="M14.25 5.55L12.9 5.55L12.9 6.9"
-        stroke="currentColor"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function IconRewind() {
-  return (
-    <svg width="17" height="14" viewBox="0 0 17 14" fill="currentColor" aria-hidden>
-      <path d="M6.2 1.2L0.8 7l5.4 5.8V1.2z" />
-      <path d="M12.8 1.2L7.4 7l5.4 5.8V1.2z" />
-    </svg>
-  );
-}
-
-function IconFastForward() {
-  return (
-    <svg width="17" height="14" viewBox="0 0 17 14" fill="currentColor" aria-hidden>
-      <path d="M4.2 1.2L9.6 7 4.2 12.8V1.2z" />
-      <path d="M10.8 1.2L16.2 7l-5.4 5.8V1.2z" />
-    </svg>
-  );
-}
-
-function IconPlay() {
-  return (
-    <svg width="26" height="26" viewBox="0 0 26 26" fill="currentColor" aria-hidden>
-      <path d="M9 6.5l10.5 6.5L9 19.5V6.5z" />
-    </svg>
-  );
-}
-
-function IconPause() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="currentColor" aria-hidden>
-      <rect x="5" y="5" width="4.5" height="12" rx="0.5" />
-      <rect x="12.5" y="5" width="4.5" height="12" rx="0.5" />
-    </svg>
-  );
-}
-
 function VideoControls({
   disabled,
   playing,
@@ -187,7 +78,7 @@ function VideoControls({
           disabled={disabled}
           label="Jump to start"
         >
-          <IconJumpToStart />
+          <IconJumpToStart size={13} solid />
         </CircleJumpButton>
         <span className={`${LABEL} whitespace-nowrap`}>Jump to start</span>
       </div>
@@ -199,7 +90,7 @@ function VideoControls({
         className={`flex shrink-0 items-center gap-1.5 transition hover:opacity-70 disabled:opacity-40 ${ICON_MUTED}`}
         aria-label="Back 10 seconds"
       >
-        <IconSkip10Back />
+        <IconSkip10Back size={18} solid />
         <span className={LABEL}>10s</span>
       </button>
 
@@ -211,7 +102,7 @@ function VideoControls({
           className={`flex items-center justify-center transition hover:opacity-70 disabled:opacity-40 ${ICON_DARK}`}
           aria-label="Rewind"
         >
-          <IconRewind />
+          <IconRewind size={14} solid />
         </button>
 
         <button
@@ -221,7 +112,7 @@ function VideoControls({
           className={`flex items-center justify-center transition hover:opacity-70 disabled:opacity-40 ${ICON_DARK}`}
           aria-label={playing ? "Pause" : "Play"}
         >
-          {playing ? <IconPause /> : <IconPlay />}
+          {playing ? <IconPause size={22} solid /> : <IconPlay size={26} solid />}
         </button>
 
         <button
@@ -231,7 +122,7 @@ function VideoControls({
           className={`flex items-center justify-center transition hover:opacity-70 disabled:opacity-40 ${ICON_DARK}`}
           aria-label="Fast forward"
         >
-          <IconFastForward />
+          <IconFastForward size={14} solid />
         </button>
       </div>
 
@@ -243,13 +134,13 @@ function VideoControls({
         aria-label="Forward 10 seconds"
       >
         <span className={LABEL}>10s</span>
-        <IconSkip10Forward />
+        <IconSkip10Forward size={18} solid />
       </button>
 
       <div className="flex shrink-0 items-center gap-2">
         <span className={`${LABEL} whitespace-nowrap`}>Jump to end</span>
         <CircleJumpButton onClick={onJumpToEnd} disabled={disabled} label="Jump to end">
-          <IconJumpToEnd />
+          <IconJumpToEnd size={13} solid />
         </CircleJumpButton>
       </div>
     </div>

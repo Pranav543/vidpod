@@ -2,7 +2,7 @@
 
 import { consumeExportStream } from "@/lib/export-stream";
 import { formatTime } from "@/lib/format-time";
-import { Check, Download, Loader2 } from "lucide-react";
+import { IconCheck, IconDownload, IconLoader2, figmaIconProps } from "./icons";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -124,9 +124,9 @@ export function ExportButton({ disabled, disabledReason }: Props) {
         className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-[#e5e7eb] bg-white px-3 py-2 text-sm font-medium text-[#374151] shadow-sm transition hover:bg-[#f9fafb] disabled:cursor-not-allowed disabled:opacity-50"
       >
         {exporting ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+          <IconLoader2 spin {...figmaIconProps({ size: 16 })} aria-hidden />
         ) : (
-          <Download className="h-4 w-4" aria-hidden />
+          <IconDownload {...figmaIconProps({ size: 16 })} aria-hidden />
         )}
         {exporting ? "Exporting…" : "Export MP4"}
       </button>
@@ -159,7 +159,7 @@ export function ExportButton({ disabled, disabledReason }: Props) {
           role="status"
           aria-live="polite"
         >
-          <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-600" aria-hidden />
+          <IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600" aria-hidden />
           <div className="min-w-0 text-left">
             <p className="font-medium">Export complete</p>
             <p className="mt-0.5 break-all text-green-800">{success.filename}</p>

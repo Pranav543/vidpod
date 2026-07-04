@@ -4,7 +4,7 @@ import { mediaUrl } from "@/lib/ads";
 import { pickBestAbAd } from "@/lib/marker-config";
 import type { AdPerformance } from "@/lib/marker-config";
 import type { Ad, AdMarker } from "@/lib/types";
-import { ChevronRight, X } from "lucide-react";
+import { IconChevronRight, IconX } from "./icons";
 
 type Props = {
   open: boolean;
@@ -56,7 +56,7 @@ export function AbTestResultsModal({
             onClick={onClose}
             className="rounded-lg p-1.5 text-[#9ca3af] hover:bg-[#f3f4f6]"
           >
-            <X className="h-5 w-5" />
+            <IconX className="h-5 w-5" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -96,7 +96,7 @@ export function AbTestResultsModal({
                   </p>
                   <div className="mt-1 flex items-center gap-0.5 text-[11px] text-[#6b7280]">
                     <span>{brand}</span>
-                    <ChevronRight className="h-3 w-3" />
+                    <IconChevronRight className="h-3 w-3" strokeWidth={1.5} />
                     <span>Pod 3</span>
                   </div>
                 </div>

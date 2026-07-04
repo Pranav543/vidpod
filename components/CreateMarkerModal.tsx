@@ -1,32 +1,39 @@
 "use client";
 
 import type { AdMode } from "@/lib/types";
-import { CircleDashed, FlaskConical, Target, X } from "lucide-react";
+import {
+  IconCircleDashed,
+  IconFlaskConical,
+  IconTarget,
+  IconX,
+  type VidpodLucideIcon,
+  figmaIconProps,
+} from "./icons";
 import { useState } from "react";
 
 const OPTIONS: {
   mode: AdMode;
   title: string;
   description: string;
-  icon: typeof CircleDashed;
+  icon: VidpodLucideIcon;
 }[] = [
   {
     mode: "auto",
     title: "Auto",
     description: "Automatic ad insertions",
-    icon: CircleDashed,
+    icon: IconCircleDashed,
   },
   {
     mode: "static",
     title: "Static",
     description: "A marker for a specific ad that you select",
-    icon: Target,
+    icon: IconTarget,
   },
   {
     mode: "ab",
     title: "A/B test",
     description: "Compare the performance of multiple ads",
-    icon: FlaskConical,
+    icon: IconFlaskConical,
   },
 ];
 
@@ -63,7 +70,7 @@ export function CreateMarkerModal({ open, onClose, onSelect }: Props) {
             onClick={onClose}
             className="rounded-lg p-1.5 text-[#9ca3af] hover:bg-[#f3f4f6]"
           >
-            <X className="h-5 w-5" />
+            <IconX className="h-5 w-5" strokeWidth={1.5} />
           </button>
         </div>
 
@@ -82,7 +89,7 @@ export function CreateMarkerModal({ open, onClose, onSelect }: Props) {
                   }`}
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e5e7eb] bg-white">
-                    <Icon className="h-5 w-5 text-[#6b7280]" strokeWidth={1.5} />
+                    <Icon {...figmaIconProps({ size: 20, className: "text-[#6b7280]" })} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-[#111827]">{title}</p>

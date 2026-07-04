@@ -14,8 +14,11 @@
     "postinstall": "npm rebuild better-sqlite3 || true && npm run sync-media"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.3.0",
+    "@fortawesome/free-regular-svg-icons": "^7.3.0",
+    "@fortawesome/free-solid-svg-icons": "^7.3.0",
+    "@fortawesome/react-fontawesome": "^3.3.1",
     "better-sqlite3": "^11.8.1",
-    "lucide-react": "^0.487.0",
     "next": "^15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

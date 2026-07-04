@@ -13,6 +13,7 @@ import {
 import { mediaUrl } from "@/lib/ads";
 import { EPISODE_LANE, MODE_COLORS, generateWaveformBars } from "@/lib/timeline-visual";
 import type { Ad, AdMarker } from "@/lib/types";
+import { IconRedo, IconUndo, IconZoomIn, IconZoomOut } from "./icons";
 import {
   type ReactNode,
   useCallback,
@@ -152,66 +153,6 @@ type DragState = {
   grabOffsetTimelinePx: number;
 };
 
-function IconUndo() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-      <path
-        d="M4.5 2.5L2 5l2.5 2.5"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M2 5h4.5a2.5 2.5 0 1 1 0 5"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function IconRedo() {
-  return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden>
-      <path
-        d="M5.5 2.5L8 5 5.5 7.5"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8 5H3.5a2.5 2.5 0 1 0 0 5"
-        stroke="currentColor"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function IconZoomOut() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.25" />
-      <path d="M10.5 10.5L13 13" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-      <path d="M5 7h4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function IconZoomIn() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.25" />
-      <path d="M10.5 10.5L13 13" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-      <path d="M5 7h4M7 5v4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function HistoryButton({
   label,
   icon,
@@ -256,7 +197,7 @@ function ZoomSlider({
   return (
     <div className="flex w-[220px] items-center gap-3">
       <span className="shrink-0 text-[#9ca3af]">
-        <IconZoomOut />
+        <IconZoomOut size={16} />
       </span>
       <div
         className="relative flex flex-1 items-center"
@@ -297,7 +238,7 @@ function ZoomSlider({
         />
       </div>
       <span className="shrink-0 text-[#9ca3af]">
-        <IconZoomIn />
+        <IconZoomIn size={16} />
       </span>
     </div>
   );
@@ -1060,13 +1001,13 @@ export function Timeline({
         <div className="flex items-center gap-8">
           <HistoryButton
             label="Undo"
-            icon={<IconUndo />}
+            icon={<IconUndo size={10} />}
             disabled={!canUndo}
             onClick={onUndo}
           />
           <HistoryButton
             label="Redo"
-            icon={<IconRedo />}
+            icon={<IconRedo size={10} />}
             disabled={!canRedo}
             onClick={onRedo}
           />

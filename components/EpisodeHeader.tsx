@@ -1,7 +1,7 @@
 "use client";
 
 import { DEFAULT_EPISODE, DEFAULT_EPISODE_DISPLAY_NAME } from "@/lib/default-episode";
-import { ChevronLeft } from "lucide-react";
+import { IconChevronLeft, figmaIconProps } from "./icons";
 
 type Props = {
   episodeFilename: string | null;
@@ -32,7 +32,7 @@ export function EpisodeHeader({ episodeFilename }: Props) {
         type="button"
         className="mb-1.5 flex items-center gap-1 text-[13px] text-[#6b7280] transition hover:text-[#111827]"
       >
-        <ChevronLeft className="h-3.5 w-3.5" />
+        <IconChevronLeft {...figmaIconProps({ size: 14 })} />
         Ads
       </button>
       <h1 className="line-clamp-2 max-w-[720px] text-[17px] font-semibold leading-snug tracking-tight text-[#111827]">

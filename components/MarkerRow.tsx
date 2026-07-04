@@ -3,7 +3,7 @@
 import { formatTimecode } from "@/lib/format-time";
 import { MODE_COLORS } from "@/lib/timeline-visual";
 import type { AdMarker, AdMode } from "@/lib/types";
-import { Trash2 } from "lucide-react";
+import { IconTrash2, figmaIconProps } from "./icons";
 
 const MODE_LABELS: Record<AdMode, string> = {
   static: "Static",
@@ -90,7 +90,7 @@ export function MarkerRow({
         className="flex h-8 w-8 items-center justify-center rounded-sm bg-[#fef2f2] text-[#dc2626] transition hover:bg-[#fee2e2]"
         aria-label="Delete marker"
       >
-        <Trash2 className="h-3.5 w-3.5" />
+        <IconTrash2 {...figmaIconProps({ size: 14 })} />
       </button>
     </div>
   );

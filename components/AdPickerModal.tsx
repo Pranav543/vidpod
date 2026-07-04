@@ -3,13 +3,14 @@
 import { mediaUrl } from "@/lib/ads";
 import type { Ad, AdMode } from "@/lib/types";
 import {
-  ChevronDown,
-  ChevronRight,
-  Folder,
-  Search,
-  Waves,
-  X,
-} from "lucide-react";
+  IconChevronDown,
+  IconChevronRight,
+  IconFolder,
+  IconSearch,
+  IconWaves,
+  IconX,
+  figmaIconProps,
+} from "./icons";
 import { useMemo, useState } from "react";
 
 const FOLDERS = [
@@ -103,14 +104,14 @@ export function AdPickerModal({
             <p className="mt-1 text-sm text-[#6b7280]">{modalSubtitle(mode)}</p>
           </div>
           <button type="button" onClick={onClose} className="rounded-lg p-1.5 hover:bg-[#f3f4f6]">
-            <X className="h-5 w-5 text-[#9ca3af]" />
+            <IconX className="h-5 w-5 text-[#9ca3af]" strokeWidth={1.5} />
           </button>
         </div>
 
         <div className="flex min-h-0 flex-1">
           <aside className="w-56 shrink-0 border-r border-[#f3f4f6] p-4">
             <div className="relative mb-4">
-              <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
+              <IconSearch className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" strokeWidth={1.5} />
               <input
                 type="search"
                 placeholder="Search library…"
@@ -120,7 +121,7 @@ export function AdPickerModal({
               />
             </div>
             <p className="mb-2 flex items-center gap-2 text-xs font-semibold text-[#6b7280]">
-              <Waves className="h-3.5 w-3.5" />
+              <IconWaves {...figmaIconProps({ size: 14 })} />
               Ad library
             </p>
             <ul className="space-y-0.5 text-sm">
@@ -153,12 +154,13 @@ export function AdPickerModal({
                           }
                         }}
                       >
-                        <ChevronDown
+                        <IconChevronDown
                           className={`h-3.5 w-3.5 transition ${folderOpen[f.id] ? "" : "-rotate-90"}`}
+                          strokeWidth={1.5}
                         />
                       </span>
                     ) : (
-                      <Folder className="h-3.5 w-3.5 shrink-0" />
+                      <IconFolder className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
                     )}
                     {f.label}
                   </div>
@@ -188,10 +190,10 @@ export function AdPickerModal({
                 className="flex items-center gap-1 rounded-lg border border-[#e5e7eb] px-3 py-1.5 text-xs text-[#6b7280]"
               >
                 Upload date
-                <ChevronDown className="h-3.5 w-3.5" />
+                <IconChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
               </button>
               <div className="relative flex-1">
-                <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" />
+                <IconSearch className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9ca3af]" strokeWidth={1.5} />
                 <input
                   type="search"
                   placeholder="Search ads…"
@@ -242,7 +244,7 @@ export function AdPickerModal({
                           <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5">
                             {ad.name.split(" ")[0]}
                           </span>
-                          <ChevronRight className="h-3 w-3" />
+                          <IconChevronRight className="h-3 w-3" strokeWidth={1.5} />
                           <span className="rounded-full bg-[#f3f4f6] px-2 py-0.5">
                             Pod 3
                           </span>

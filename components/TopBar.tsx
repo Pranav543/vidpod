@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, ChevronDown, Settings } from "lucide-react";
+import { IconBell, IconChevronDown, IconSettings, figmaIconProps } from "./icons";
 
 export function TopBar() {
   return (
@@ -10,7 +10,7 @@ export function TopBar() {
         className="rounded-lg p-2 text-[#6b7280] transition hover:bg-white hover:text-[#111827]"
         aria-label="Settings"
       >
-        <Settings className="h-5 w-5" strokeWidth={1.5} />
+        <IconSettings {...figmaIconProps({ size: 20 })} />
       </button>
       <button
         type="button"
@@ -18,7 +18,7 @@ export function TopBar() {
         aria-label="Notifications"
       >
         <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
-        <Bell className="h-5 w-5" strokeWidth={1.5} />
+        <IconBell {...figmaIconProps({ size: 20 })} />
       </button>
       <button
         type="button"
@@ -26,7 +26,7 @@ export function TopBar() {
       >
         <div className="h-8 w-8 rounded-full bg-gradient-to-br from-rose-300 to-violet-400" />
         <span className="text-sm font-medium text-[#111827]">Emma Warren</span>
-        <ChevronDown className="h-4 w-4 text-[#9ca3af]" />
+        <IconChevronDown className="h-4 w-4 text-[#9ca3af]" strokeWidth={1.5} />
       </button>
     </header>
   );

@@ -1,28 +1,29 @@
 "use client";
 
 import {
-  BarChart3,
-  ChevronDown,
-  Download,
-  HelpCircle,
-  LayoutDashboard,
-  Lightbulb,
-  Megaphone,
-  Monitor,
-  Plus,
-  Settings,
-  Users,
-} from "lucide-react";
+  IconArchive,
+  IconChartColumn,
+  IconChevronDown,
+  IconCircle,
+  IconCircleDollarSign,
+  IconCircleHelp,
+  IconDownload,
+  IconHome,
+  IconLightbulb,
+  IconPlus,
+  IconUsers,
+  figmaIconProps,
+} from "./icons";
 import { useRef, useState } from "react";
 import { VidpodLogo } from "./VidpodLogo";
 
 const NAV = [
-  { icon: LayoutDashboard, label: "Dashboard" },
-  { icon: BarChart3, label: "Analytics" },
-  { icon: Megaphone, label: "Ads", active: true },
-  { icon: Monitor, label: "Channels" },
-  { icon: Download, label: "Import" },
-  { icon: Settings, label: "Settings" },
+  { icon: IconHome, label: "Dashboard" },
+  { icon: IconChartColumn, label: "Analytics" },
+  { icon: IconCircleDollarSign, label: "Ads", active: true },
+  { icon: IconCircle, label: "Channels" },
+  { icon: IconDownload, label: "Import" },
+  { icon: IconArchive, label: "Settings" },
 ];
 
 type SidebarProps = {
@@ -68,7 +69,7 @@ export function Sidebar({
           onClick={() => fileRef.current?.click()}
           className="flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-[#111827] text-[13px] font-medium text-white transition hover:bg-[#1f2937]"
         >
-          <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+          <IconPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
           Create an episode
         </button>
         <input
@@ -101,7 +102,7 @@ export function Sidebar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="pointer-events-none absolute right-5 h-3.5 w-3.5 text-[#9ca3af]" />
+            <IconChevronDown className="pointer-events-none absolute right-5 h-3.5 w-3.5 text-[#9ca3af]" />
           </div>
         </div>
       </div>
@@ -120,7 +121,7 @@ export function Sidebar({
             {active && (
               <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#111827]" />
             )}
-            <Icon className="h-[17px] w-[17px]" strokeWidth={active ? 2 : 1.5} />
+            <Icon {...figmaIconProps({ active })} />
             {label}
           </button>
         ))}
@@ -178,16 +179,16 @@ export function Sidebar({
             </button>
           </label>
           {[
-            { icon: Users, label: "Invite your team" },
-            { icon: Lightbulb, label: "Give feedback" },
-            { icon: HelpCircle, label: "Help & support" },
+            { icon: IconUsers, label: "Invite your team" },
+            { icon: IconLightbulb, label: "Give feedback" },
+            { icon: IconCircleHelp, label: "Help & support" },
           ].map(({ icon: Icon, label }) => (
             <button
               key={label}
               type="button"
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] text-[#6b7280] transition hover:bg-white hover:text-[#374151]"
             >
-              <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <Icon {...figmaIconProps({ size: 14 })} />
               {label}
             </button>
           ))}
