@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { resolveAdForMarker } from "./marker-config";
 import {
-  buildTimeline,
   buildTimelineExcludingMarker,
   episodeTimeFromPixelDelta,
   timelinePositionToEpisodeTime,
-} from "./playback";
+} from "./timeline-mapping";
+import { buildTimeline } from "./timeline-build";
 import type { Ad, AdMarker } from "./types";
 
 const catalog: Ad[] = [

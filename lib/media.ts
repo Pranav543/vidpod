@@ -1,5 +1,8 @@
 import fs from "fs";
 import path from "path";
+import { mediaUrl } from "./media-url";
+
+export { mediaUrl };
 
 export const DATA_DIR = path.join(process.cwd(), "data");
 export const PODCAST_DIR = path.join(DATA_DIR, "podcast");
@@ -36,14 +39,6 @@ export function safeMediaPath(relativePath: string): string | null {
   if (!full.startsWith(root)) return null;
   if (!fs.existsSync(full)) return null;
   return full;
-}
-
-export function mediaUrl(relativePath: string): string {
-  const encoded = relativePath
-    .split("/")
-    .map((p) => encodeURIComponent(p))
-    .join("/");
-  return `/api/media/${encoded}`;
 }
 
 export function listPodcastVideos(): { filename: string; name: string }[] {

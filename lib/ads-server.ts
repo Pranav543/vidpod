@@ -46,11 +46,3 @@ export function getAdsCatalog(): Ad[] {
 
   return catalogFromJson();
 }
-
-export function getAdByIdServer(id: string): Ad | undefined {
-  return getAdsCatalog().find((a) => a.id === id);
-}
-
-export function adFileExists(filename: string): boolean {
-  return safeMediaPath(filename) !== null;
-}

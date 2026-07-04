@@ -15,8 +15,12 @@ import { useProbeDurations } from "@/hooks/useProbeDurations";
 import { useUndoRedo } from "@/hooks/useUndoRedo";
 import { useVidpodPlayer } from "@/hooks/useVidpodPlayer";
 import type { AdPerformance } from "@/lib/marker-config";
-import { buildTimeline, episodeMarkerToTimeline } from "@/lib/playback";
-import { getPlayheadLabels } from "@/lib/timeline-mapping";
+import {
+  episodeMarkerToTimeline,
+  getPlayheadLabels,
+  timelinePositionToMarkerEpisodeTime,
+} from "@/lib/timeline-mapping";
+import { buildTimeline } from "@/lib/timeline-build";
 import { syncMarkersToServer } from "@/lib/sync-markers";
 import type { Ad, AdMarker, AdMode } from "@/lib/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -53,7 +57,7 @@ export default function VidpodPage() {
   const editorStackRef = useRef<HTMLDivElement>(null);
   const [timelineMaxCardHeight, setTimelineMaxCardHeight] = useState<number>();
   const [episodeLoading, setEpisodeLoading] = useState(false);
-  const [volume, setVolume] = useState(0.85);
+  const volume = 0.85;
   const loadedRef = useRef(false);
 
   const { catalog: adsCatalog } = useProbeDurations(ads, episodeUrl);
@@ -234,16 +238,11 @@ export default function VidpodPage() {
       adsCatalog,
       performance
     );
-    for (const seg of segments) {
-      if (
-        seg.type === "episode" &&
-        player.timelineTime >= seg.timelineStart &&
-        player.timelineTime < seg.timelineEnd
-      ) {
-        return seg.episodeStart + (player.timelineTime - seg.timelineStart);
-      }
-    }
-    return Math.min(player.timelineTime, player.episodeDuration);
+    return timelinePositionToMarkerEpisodeTime(
+      player.timelineTime,
+      segments,
+      player.episodeDuration
+    );
   }, [
     markers,
     player.episodeDuration,

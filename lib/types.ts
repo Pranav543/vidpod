@@ -14,11 +14,6 @@ export type Ad = {
   duration: number;
 };
 
-export type EpisodeInfo = {
-  filename: string;
-  url: string;
-};
-
 export type CreateMarkerBody = {
   id?: string;
   startTime: number;

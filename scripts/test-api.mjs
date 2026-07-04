@@ -56,6 +56,16 @@ const { status: create, json: created } = await req("POST", "/api/markers", {
 });
 assert("POST marker", create === 201 && created.id);
 
+const TEST_ID = "test-restore-marker-id";
+await req("DELETE", `/api/markers/${TEST_ID}`).catch(() => {});
+const { status: idCreate, json: idCreated } = await req("POST", "/api/markers", {
+  id: TEST_ID,
+  startTime: 42,
+  mode: "ab",
+});
+assert("POST marker preserves client id", idCreate === 201 && idCreated.id === TEST_ID);
+await req("DELETE", `/api/markers/${TEST_ID}`);
+
 const { status: upd } = await req("PUT", `/api/markers/${created.id}`, {
   startTime: 20,
   mode: "ab",

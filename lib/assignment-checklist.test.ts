@@ -3,10 +3,13 @@
  * UI flows: upload video → add marker → pick ad → play through ad → scrub timeline.
  */
 import { describe, expect, it } from "vitest";
-import { episodeSegmentAfterAd, isAdVideoFinished } from "./ad-playback";
+import {
+  episodeSegmentAfterAd,
+  isAdVideoFinished,
+  segmentAtTimelineTime,
+} from "./ad-playback";
 import { resolveAdForMarker } from "./marker-config";
-import { buildTimeline } from "./playback";
-import { segmentAtTimelineTime } from "./playback-segment";
+import { buildTimeline } from "./timeline-build";
 import { syncEpisodePlayback } from "./playback-sync";
 import type { Ad, AdMarker } from "./types";
 

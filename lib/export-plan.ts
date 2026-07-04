@@ -1,7 +1,7 @@
 import type { AdPerformance } from "./marker-config";
 import { pickAutoAdPreview, pickBestAbAd } from "./marker-config";
 import { safeMediaPath } from "./media";
-import { adDurationFor } from "./playback";
+import { adDurationFor } from "./timeline-build";
 import type { Ad, AdMarker } from "./types";
 
 export type EpisodeExportSegment = {

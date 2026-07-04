@@ -70,15 +70,6 @@ function getDb(): Database.Database {
   return db;
 }
 
-export function isDatabaseAvailable(): boolean {
-  try {
-    getDb();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 type Row = {
   id: string;
   start_time: number;

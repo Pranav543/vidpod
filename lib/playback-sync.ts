@@ -62,22 +62,6 @@ export function segmentAfter(
   return idx >= 0 && idx < segments.length - 1 ? segments[idx + 1] : null;
 }
 
-export function findAdSegmentAtTimeline(
-  t: number,
-  segments: TimelineSegment[]
-): Extract<TimelineSegment, { type: "ad" }> | null {
-  for (const seg of segments) {
-    if (
-      seg.type === "ad" &&
-      t >= seg.timelineStart &&
-      t < seg.timelineEnd
-    ) {
-      return seg;
-    }
-  }
-  return null;
-}
-
 const EPISODE_END_EPS = 0.15;
 
 export type EpisodePlaybackSync = {

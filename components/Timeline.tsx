@@ -3,8 +3,7 @@
 import { formatTimecode } from "@/lib/format-time";
 import type { AdPerformance } from "@/lib/marker-config";
 import { resolveAdForMarker } from "@/lib/marker-config";
-import { adDurationFor, buildTimeline } from "@/lib/playback";
-import type { TimelineSegment } from "@/lib/timeline-build";
+import { adDurationFor, buildTimeline } from "@/lib/timeline-build";
 import {
   buildTimelineExcludingMarker,
   episodeMarkerToTimeline,

@@ -2,17 +2,15 @@
 
 import {
   episodeSegmentAfterAd,
+  episodeTimeForTimeline,
   isAdVideoFinished,
+  segmentAtTimelineTime,
   timelineTimeDuringAd,
   type AdTimelineSegment,
 } from "@/lib/ad-playback";
 import { adSrcByIdFromCatalog } from "@/lib/ads";
 import { resolveAdForMarker } from "@/lib/marker-config";
-import { buildTimeline, type TimelineSegment } from "@/lib/playback";
-import {
-  episodeTimeForTimeline,
-  segmentAtTimelineTime,
-} from "@/lib/playback-segment";
+import { buildTimeline, type TimelineSegment } from "@/lib/timeline-build";
 import {
   findEpisodeSegmentAtEpisodeTime,
   segmentAfter,

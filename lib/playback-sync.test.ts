@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { episodeSegmentAfterAd } from "./ad-playback";
-import { buildTimeline } from "./playback";
+import { buildTimeline } from "./timeline-build";
 import {
   episodeTimeToTimeline,
   findActiveEpisodeSegmentAtTime,
