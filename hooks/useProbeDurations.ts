@@ -20,40 +20,46 @@ function probe(url: string): Promise<number> {
   });
 }
 
+function needsDurationProbe(ad: Ad): boolean {
+  return !ad.duration || ad.duration <= 0;
+}
+
 export function useProbeDurations(ads: Ad[], episodeUrl: string | null) {
   const [catalog, setCatalog] = useState<Ad[]>(ads);
-  const [episodeDurationHint, setEpisodeDurationHint] = useState<number | null>(null);
 
   useEffect(() => {
     setCatalog(ads);
   }, [ads]);
 
   useEffect(() => {
+    const missing = ads.filter(needsDurationProbe);
+    if (missing.length === 0) return;
+
     let cancelled = false;
     (async () => {
-      const updated = await Promise.all(
-        ads.map(async (ad) => {
+      const probed = new Map<string, number>();
+      await Promise.all(
+        missing.map(async (ad) => {
           const d = await probe(mediaUrl(ad.filename));
-          return { ...ad, duration: Math.max(1, Math.round(d)) };
+          probed.set(ad.id, Math.max(1, Math.round(d)));
         })
       );
-      if (!cancelled) setCatalog(updated);
+      if (cancelled) return;
+      setCatalog(
+        ads.map((ad) =>
+          probed.has(ad.id)
+            ? { ...ad, duration: probed.get(ad.id)! }
+            : ad
+        )
+      );
     })();
     return () => {
       cancelled = true;
     };
   }, [ads]);
 
-  useEffect(() => {
-    if (!episodeUrl) return;
-    let cancelled = false;
-    probe(episodeUrl).then((d) => {
-      if (!cancelled) setEpisodeDurationHint(d);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [episodeUrl]);
+  // Episode duration comes from the main player via loadedmetadata.
+  void episodeUrl;
 
-  return { catalog, episodeDurationHint };
+  return { catalog };
 }

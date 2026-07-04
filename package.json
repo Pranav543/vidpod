@@ -5,11 +5,13 @@
   "scripts": {
     "dev": "next dev",
     "dev:clean": "rm -rf .next && next dev",
+    "sync-media": "node scripts/sync-public-media.mjs",
+    "prebuild": "npm run sync-media",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "postinstall": "npm rebuild better-sqlite3 || true"
+    "postinstall": "npm rebuild better-sqlite3 || true && npm run sync-media"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

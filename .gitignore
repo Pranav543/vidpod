@@ -18,6 +18,9 @@
 # production
 /build
 
+# generated static media copies (built from data/ via sync-public-media)
+/public/media/
+
 # misc
 .DS_Store
 *.pem

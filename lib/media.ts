@@ -1,8 +1,18 @@
 import fs from "fs";
 import path from "path";
-import { mediaUrl } from "./media-url";
+import { apiMediaUrl, staticMediaUrl } from "./media-url";
 
-export { mediaUrl };
+/** Server-side: CDN for bundled files in public/media, API route for runtime uploads. */
+export function mediaUrl(relativePath: string): string {
+  const parts = relativePath.split("/");
+  if (parts.length === 2) {
+    const publicFile = path.join(process.cwd(), "public", "media", ...parts);
+    if (fs.existsSync(publicFile)) {
+      return staticMediaUrl(relativePath);
+    }
+  }
+  return apiMediaUrl(relativePath);
+}
 
 export const DATA_DIR = path.join(process.cwd(), "data");
 export const PODCAST_DIR = path.join(DATA_DIR, "podcast");

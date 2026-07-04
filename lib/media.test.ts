@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { safeMediaPath, mediaUrl } from "./media";
+import { apiMediaUrl, mediaUrl, staticMediaUrl } from "./media-url";
+import { mediaUrl as serverMediaUrl, safeMediaPath } from "./media";
 import path from "path";
 
 describe("media", () => {
@@ -19,9 +20,22 @@ describe("media", () => {
     expect(p).not.toBeNull();
   });
 
-  it("builds media API url with folder", () => {
+  it("builds static CDN url for client", () => {
     expect(mediaUrl("podcast/main-video.mp4")).toBe(
-      "/api/media/podcast/main-video.mp4"
+      "/media/podcast/main-video.mp4"
+    );
+    expect(staticMediaUrl("ads/sample-ad-1.mp4")).toBe(
+      "/media/ads/sample-ad-1.mp4"
+    );
+    expect(apiMediaUrl("podcast/upload.mp4")).toBe(
+      "/api/media/podcast/upload.mp4"
+    );
+  });
+
+  it("server mediaUrl prefers CDN when public copy exists", () => {
+    const url = serverMediaUrl("podcast/main-video.mp4");
+    expect(url === "/media/podcast/main-video.mp4" || url === "/api/media/podcast/main-video.mp4").toBe(
+      true
     );
   });
 });

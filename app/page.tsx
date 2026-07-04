@@ -129,9 +129,36 @@ export default function VidpodPage() {
   }, [loadEpisode, loadAds, loadPerformance, resetMarkers]);
 
   useEffect(() => {
-    const id = setInterval(() => void loadPerformance(), 2000);
-    return () => clearInterval(id);
-  }, [loadPerformance]);
+    const hasAbMarkers = markers.some((m) => m.mode === "ab");
+    if (!hasAbMarkers) return;
+
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+
+    const startPolling = () => {
+      if (intervalId) return;
+      void loadPerformance();
+      intervalId = setInterval(() => void loadPerformance(), 8000);
+    };
+
+    const stopPolling = () => {
+      if (!intervalId) return;
+      clearInterval(intervalId);
+      intervalId = null;
+    };
+
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") startPolling();
+      else stopPolling();
+    };
+
+    onVisibility();
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      stopPolling();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, [loadPerformance, markers]);
 
   useEffect(() => {
     if (!episodeUrl) return;

@@ -36,6 +36,7 @@ assert("GET markers", m0 === 200 && Array.isArray(markers0));
 
 const { status: ep, json: episode } = await req("GET", "/api/episode");
 assert("GET episode", ep === 200 && episode.url?.includes("podcast/"));
+assert("episode uses CDN or API media", /\/(media|api\/media)\/podcast\//.test(episode.url ?? ""));
 assert("episode exists", episode.exists === true);
 assert("lists podcast folder", Array.isArray(episode.videos) && episode.videos.length >= 1);
 
@@ -43,8 +44,16 @@ const { status: adsStatus, json: ads } = await req("GET", "/api/ads");
 assert("GET ads", adsStatus === 200 && ads.length >= 4);
 assert("ads use ads/ path", ads[0]?.filename?.startsWith("ads/"));
 
-const { status: mediaStatus } = await req("GET", "/api/media/podcast/main-video.mp4");
-assert("GET podcast media", mediaStatus === 200);
+const { status: mediaStatus } = await req("GET", "/media/podcast/main-video.mp4");
+assert("GET podcast static media", mediaStatus === 200);
+
+const rangeRes = await fetch(`${BASE}/media/podcast/main-video.mp4`, {
+  headers: { Range: "bytes=0-1023" },
+});
+assert("static media supports range requests", rangeRes.status === 206);
+
+const { status: apiMediaStatus } = await req("GET", "/api/media/podcast/main-video.mp4");
+assert("GET podcast API media fallback", apiMediaStatus === 200);
 
 const { status: perfStatus, json: perf } = await req("GET", "/api/ad-performance");
 assert("GET ad-performance", perfStatus === 200 && perf["ad-4"]?.ctr > 0);
