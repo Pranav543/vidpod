@@ -143,6 +143,22 @@ export function episodeTimeFromPixelDelta(
 }
 
 /** Inverse of episodeMarkerToTimeline for drag placement (segments exclude dragged marker). */
+function episodeEndBefore(segments: TimelineSegment[], index: number): number {
+  for (let j = index - 1; j >= 0; j--) {
+    const prev = segments[j];
+    if (prev.type === "episode") return prev.episodeEnd;
+  }
+  return 0;
+}
+
+function lastEpisodeEnd(segments: TimelineSegment[], fallback: number): number {
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const seg = segments[i];
+    if (seg.type === "episode") return seg.episodeEnd;
+  }
+  return fallback;
+}
+
 export function timelinePositionToEpisodeMarkerTime(
   timelineSec: number,
   segments: TimelineSegment[],
@@ -159,20 +175,14 @@ export function timelinePositionToEpisodeMarkerTime(
 
     if (T < seg.timelineStart) {
       if (seg.type === "episode") return seg.episodeStart;
-      for (let j = i - 1; j >= 0; j--) {
-        if (segments[j].type === "episode") return segments[j].episodeEnd;
-      }
-      return 0;
+      return episodeEndBefore(segments, i);
     }
 
     if (T >= seg.timelineStart && T < seg.timelineEnd) {
       if (seg.type === "episode") {
         return seg.episodeStart + (T - seg.timelineStart);
       }
-      for (let j = i - 1; j >= 0; j--) {
-        if (segments[j].type === "episode") return segments[j].episodeEnd;
-      }
-      return 0;
+      return episodeEndBefore(segments, i);
     }
 
     if (T === seg.timelineEnd && seg.type === "episode") {
@@ -180,10 +190,7 @@ export function timelinePositionToEpisodeMarkerTime(
     }
   }
 
-  for (let i = segments.length - 1; i >= 0; i--) {
-    if (segments[i].type === "episode") return segments[i].episodeEnd;
-  }
-  return episodeDuration;
+  return lastEpisodeEnd(segments, episodeDuration);
 }
 
 export function episodeMarkerTimeFromTrackPx(
