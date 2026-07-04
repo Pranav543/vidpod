@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { resolveAdForMarker } from "./marker-config";
 import {
   buildTimelineExcludingMarker,
+  episodeMarkerTimeFromTrackPx,
+  episodeMarkerToTimeline,
   episodeTimeFromPixelDelta,
+  timelinePositionToEpisodeMarkerTime,
   timelinePositionToEpisodeTime,
 } from "./timeline-mapping";
 import { buildTimeline } from "./timeline-build";
@@ -59,6 +62,35 @@ describe("buildTimeline", () => {
     const moved = episodeTimeFromPixelDelta(30, 50, withoutM1, 120, 12);
     expect(moved).toBeGreaterThan(30);
     expect(moved).toBeLessThan(90);
+  });
+
+  it("round-trips timeline px to episode marker time during drag", () => {
+    const { segments: withoutM1, totalDuration } = buildTimelineExcludingMarker(
+      markers,
+      "m1",
+      120,
+      catalog,
+      PERF
+    );
+    const pps = 12;
+    const startEp = 30;
+    const tl = episodeMarkerToTimeline(startEp, withoutM1);
+    const leftPx = tl * pps;
+    const restored = episodeMarkerTimeFromTrackPx(leftPx, withoutM1, 120, pps);
+    expect(restored).toBeCloseTo(startEp, 1);
+
+    const forwardPx = (tl + 24) * pps;
+    const forwardEp = episodeMarkerTimeFromTrackPx(forwardPx, withoutM1, 120, pps);
+    expect(forwardEp).toBeGreaterThan(startEp);
+
+    const midAdTimeline = timelinePositionToEpisodeMarkerTime(
+      45,
+      withoutM1,
+      120
+    );
+    expect(midAdTimeline).toBeGreaterThanOrEqual(30);
+    expect(midAdTimeline).toBeLessThanOrEqual(60);
+    void totalDuration;
   });
 });
 

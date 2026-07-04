@@ -506,9 +506,7 @@ export function useVidpodPlayer(
   }, [playing, episodeReady]);
 
   useEffect(() => {
-    const ep = episodeVideoRef.current;
-    const ad = adVideoRef.current;
-    if (!ep || !episodeSrc) {
+    if (!episodeSrc) {
       setEpisodeReady(false);
       setEpisodeDuration(0);
       playbackModeRef.current = { kind: "episode" };
@@ -516,37 +514,66 @@ export function useVidpodPlayer(
       return;
     }
 
-    ++seekTokenRef.current;
-    suppressVideoEventsRef.current = true;
-    seekingRef.current = true;
-    setEpisodeReady(false);
-    setEpisodeDuration(0);
-    playbackModeRef.current = { kind: "episode" };
-    showingAdRef.current = false;
-    setShowingAd(false);
-    resumingFromAdRef.current = false;
-    completedAdMarkerIdsRef.current.clear();
-    ep.pause();
-    ad?.pause();
-    ep.loop = false;
-    if (ad) ad.loop = false;
-    setPlayingState(false);
-    syncTimeline(0);
-    ep.src = episodeSrc;
-    ep.load();
+    let cancelled = false;
+    let raf = 0;
+    let onMeta: (() => void) | null = null;
 
-    const onMeta = () => {
-      if (Number.isFinite(ep.duration) && ep.duration > 0) {
-        setEpisodeDuration(ep.duration);
-        setEpisodeReady(true);
+    const bindEpisode = () => {
+      if (cancelled) return;
+
+      const ep = episodeVideoRef.current;
+      if (!ep) {
+        raf = requestAnimationFrame(bindEpisode);
+        return;
       }
-      seekingRef.current = false;
-      suppressVideoEventsRef.current = false;
-      ep.removeEventListener("loadedmetadata", onMeta);
-    };
-    ep.addEventListener("loadedmetadata", onMeta);
 
-    return () => ep.removeEventListener("loadedmetadata", onMeta);
+      const ad = adVideoRef.current;
+
+      ++seekTokenRef.current;
+      suppressVideoEventsRef.current = true;
+      seekingRef.current = true;
+      setEpisodeReady(false);
+      setEpisodeDuration(0);
+      playbackModeRef.current = { kind: "episode" };
+      showingAdRef.current = false;
+      setShowingAd(false);
+      resumingFromAdRef.current = false;
+      completedAdMarkerIdsRef.current.clear();
+      ep.pause();
+      ad?.pause();
+      ep.loop = false;
+      if (ad) ad.loop = false;
+      setPlayingState(false);
+      syncTimeline(0);
+
+      if (!ep.src.endsWith(episodeSrc)) {
+        ep.src = episodeSrc;
+        ep.load();
+      }
+
+      onMeta = () => {
+        if (Number.isFinite(ep.duration) && ep.duration > 0) {
+          setEpisodeDuration(ep.duration);
+          setEpisodeReady(true);
+        }
+        seekingRef.current = false;
+        suppressVideoEventsRef.current = false;
+      };
+
+      ep.addEventListener("loadedmetadata", onMeta);
+      if (ep.readyState >= 1) onMeta();
+    };
+
+    bindEpisode();
+
+    return () => {
+      cancelled = true;
+      if (raf) cancelAnimationFrame(raf);
+      const ep = episodeVideoRef.current;
+      if (ep && onMeta) {
+        ep.removeEventListener("loadedmetadata", onMeta);
+      }
+    };
   }, [episodeSrc, setPlayingState, syncTimeline]);
 
   return {

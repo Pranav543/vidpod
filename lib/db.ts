@@ -1,7 +1,7 @@
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
-import { DEFAULT_EPISODE } from "./media";
+import { DEFAULT_EPISODE } from "./default-episode";
 import type { AdMarker, AdMode } from "./types";
 
 const DATA_DIR = path.join(process.cwd(), "data");

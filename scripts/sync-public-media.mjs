@@ -16,8 +16,14 @@ const sources = [
 const VIDEO_EXT = new Set([".mp4", ".webm", ".mov"]);
 
 function copyDir(from, to) {
-  if (!fs.existsSync(from)) return 0;
+  if (!fs.existsSync(from)) {
+    if (fs.existsSync(to)) fs.rmSync(to, { recursive: true, force: true });
+    return 0;
+  }
   fs.mkdirSync(to, { recursive: true });
+  for (const existing of fs.readdirSync(to)) {
+    fs.rmSync(path.join(to, existing), { force: true });
+  }
   let count = 0;
   for (const name of fs.readdirSync(from)) {
     const ext = path.extname(name).toLowerCase();

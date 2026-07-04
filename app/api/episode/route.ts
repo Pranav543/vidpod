@@ -1,3 +1,4 @@
+import { DEFAULT_EPISODE } from "@/lib/default-episode";
 import { getEpisodeFilenameSafe, setEpisodeFilename } from "@/lib/db";
 import {
   listPodcastVideos,
@@ -7,13 +8,27 @@ import {
 } from "@/lib/media";
 import { NextResponse } from "next/server";
 
+function resolveEpisodeFilename(): string {
+  const stored = getEpisodeFilenameSafe();
+  if (safeMediaPath(stored)) return stored;
+  if (safeMediaPath(DEFAULT_EPISODE)) {
+    try {
+      setEpisodeFilename(DEFAULT_EPISODE);
+    } catch {
+      /* db unavailable — still serve default from CDN */
+    }
+    return DEFAULT_EPISODE;
+  }
+  return stored;
+}
+
 export async function GET() {
   try {
-    const stored = getEpisodeFilenameSafe();
-    const exists = safeMediaPath(stored) !== null;
+    const filename = resolveEpisodeFilename();
+    const exists = safeMediaPath(filename) !== null;
     return NextResponse.json({
-      filename: exists ? stored : null,
-      url: exists ? mediaUrl(stored) : null,
+      filename: exists ? filename : null,
+      url: exists ? mediaUrl(filename) : null,
       exists,
       videos: listPodcastVideos().map((v) => ({
         ...v,

@@ -22,6 +22,8 @@ import {
 } from "@/lib/timeline-mapping";
 import { buildTimeline } from "@/lib/timeline-build";
 import { syncMarkersToServer } from "@/lib/sync-markers";
+import { DEFAULT_EPISODE } from "@/lib/default-episode";
+import { staticMediaUrl } from "@/lib/media-url";
 import type { Ad, AdMarker, AdMode } from "@/lib/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
@@ -46,8 +48,12 @@ export default function VidpodPage() {
   const [pixelsPerSecond, setPixelsPerSecond] = useState(12);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [episodeUrl, setEpisodeUrl] = useState<string | null>(null);
-  const [episodeFilename, setEpisodeFilename] = useState<string | null>(null);
+  const [episodeUrl, setEpisodeUrl] = useState<string | null>(() =>
+    staticMediaUrl(DEFAULT_EPISODE)
+  );
+  const [episodeFilename, setEpisodeFilename] = useState<string | null>(
+    DEFAULT_EPISODE
+  );
   const [podcastVideos, setPodcastVideos] = useState<{ filename: string; name: string }[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [performance, setPerformance] = useState<Record<string, AdPerformance>>({});
@@ -56,7 +62,7 @@ export default function VidpodPage() {
   const [createMarkerOpen, setCreateMarkerOpen] = useState(false);
   const editorStackRef = useRef<HTMLDivElement>(null);
   const [timelineMaxCardHeight, setTimelineMaxCardHeight] = useState<number>();
-  const [episodeLoading, setEpisodeLoading] = useState(false);
+  const [episodeLoading, setEpisodeLoading] = useState(true);
   const volume = 0.85;
   const loadedRef = useRef(false);
 
@@ -471,6 +477,7 @@ export default function VidpodPage() {
               <VideoPlayer
                 episodeVideoRef={player.episodeVideoRef}
                 adVideoRef={player.adVideoRef}
+                episodeSrc={episodeUrl ?? undefined}
                 showingAd={player.showingAd}
                 playing={player.playing}
                 episodeReady={player.episodeReady}

@@ -6,8 +6,8 @@ import { resolveAdForMarker } from "@/lib/marker-config";
 import { adDurationFor, buildTimeline } from "@/lib/timeline-build";
 import {
   buildTimelineExcludingMarker,
+  episodeMarkerTimeFromTrackPx,
   episodeMarkerToTimeline,
-  episodeTimeFromPixelDelta,
   getPlayheadLabels,
 } from "@/lib/timeline-mapping";
 import { mediaUrl } from "@/lib/ads";
@@ -42,6 +42,8 @@ const SCROLL_PADDING_V = SCROLL_PADDING_TOP + SCROLL_PADDING_BOTTOM;
 const SCROLL_BODY_DEFAULT = 232;
 const ZOOM_THUMB = 14;
 const ZOOM_TRACK = 4;
+const DRAG_SCROLL_EDGE = 56;
+const DRAG_SCROLL_MAX_STEP = 16;
 
 type TimelineLayoutMetrics = {
   trackH: number;
@@ -147,8 +149,7 @@ type TimelineProps = {
 type DragState = {
   id: string;
   pointerId: number;
-  startX: number;
-  initialEpisodeTime: number;
+  grabOffsetTimelinePx: number;
 };
 
 function IconUndo() {
@@ -399,7 +400,6 @@ function TimelineMarker({
   left,
   width,
   selected,
-  dragging,
   thumbnail,
   onSelect,
   onPointerDown,
@@ -408,7 +408,6 @@ function TimelineMarker({
   left: number;
   width: number;
   selected: boolean;
-  dragging?: boolean;
   thumbnail?: string;
   onSelect: () => void;
   onPointerDown: (e: React.PointerEvent) => void;
@@ -430,8 +429,8 @@ function TimelineMarker({
         borderRadius: SEG_RADIUS,
       }}
       className={`absolute top-0 cursor-grab touch-none select-none active:cursor-grabbing ${colors.track} ${
-        dragging ? "" : "transition-[left,width] duration-200 ease-out"
-      } ${selected ? "z-30 shadow-md" : ""}`}
+        selected ? "z-30 shadow-md" : ""
+      }`}
       onPointerDown={onPointerDown}
       onClick={(e) => {
         e.stopPropagation();
@@ -652,7 +651,7 @@ export function Timeline({
     computeTimelineMetrics(SCROLL_BODY_DEFAULT)
   );
   const dragRef = useRef<DragState | null>(null);
-  const dragPreviewRafRef = useRef(0);
+  const dragLoopRafRef = useRef(0);
   const dragClientXRef = useRef(0);
   const scrubbingRef = useRef(false);
   const playheadScrubbingRef = useRef(false);
@@ -742,7 +741,7 @@ export function Timeline({
   );
 
   useEffect(() => {
-    if (!playing || !scrollRef.current || totalDuration <= 0) return;
+    if (!playing || dragRef.current || !scrollRef.current || totalDuration <= 0) return;
     const el = scrollRef.current;
     const margin = 80;
     const viewLeft = el.scrollLeft;
@@ -787,12 +786,112 @@ export function Timeline({
     return { left: sel.left, width: Math.max(sel.width, 56) };
   }, [markerLayouts, selectedId]);
 
-  const clientXToTimelineX = useCallback((clientX: number) => {
+  const pointerTimelinePx = useCallback((clientX: number) => {
     const track = trackRef.current;
     if (!track) return 0;
     const rect = track.getBoundingClientRect();
     return Math.max(0, clientX - rect.left);
   }, []);
+
+  const computeDragEpisodeTime = useCallback(
+    (clientX: number, grabOffsetTimelinePx: number, markerId: string) => {
+      const dur = episodeDurationRef.current || 0;
+      const pps = ppsRef.current;
+      const { segments: segsForDrag } = buildTimelineExcludingMarker(
+        markersRef.current,
+        markerId,
+        dur,
+        adsCatalogRef.current,
+        performanceRef.current
+      );
+      const markerLeftPx = Math.max(
+        0,
+        pointerTimelinePx(clientX) - grabOffsetTimelinePx
+      );
+      const epTime = episodeMarkerTimeFromTrackPx(
+        markerLeftPx,
+        segsForDrag,
+        dur,
+        pps
+      );
+      return Math.max(0, Math.min(epTime, dur));
+    },
+    [pointerTimelinePx]
+  );
+
+  const autoScrollDuringDrag = useCallback((clientX: number) => {
+    const scroll = scrollRef.current;
+    if (!scroll) return;
+
+    const rect = scroll.getBoundingClientRect();
+    if (clientX > rect.right - DRAG_SCROLL_EDGE) {
+      const intensity = Math.min(
+        1,
+        (clientX - (rect.right - DRAG_SCROLL_EDGE)) / DRAG_SCROLL_EDGE
+      );
+      scroll.scrollLeft += DRAG_SCROLL_MAX_STEP * intensity;
+    } else if (clientX < rect.left + DRAG_SCROLL_EDGE) {
+      const intensity = Math.min(
+        1,
+        (rect.left + DRAG_SCROLL_EDGE - clientX) / DRAG_SCROLL_EDGE
+      );
+      scroll.scrollLeft = Math.max(0, scroll.scrollLeft - DRAG_SCROLL_MAX_STEP * intensity);
+    }
+  }, []);
+
+  const stopDragLoop = useCallback(() => {
+    if (dragLoopRafRef.current) {
+      cancelAnimationFrame(dragLoopRafRef.current);
+      dragLoopRafRef.current = 0;
+    }
+  }, []);
+
+  const startDragLoop = useCallback(() => {
+    stopDragLoop();
+
+    const tick = () => {
+      const drag = dragRef.current;
+      if (!drag) return;
+
+      autoScrollDuringDrag(dragClientXRef.current);
+      const epTime = computeDragEpisodeTime(
+        dragClientXRef.current,
+        drag.grabOffsetTimelinePx,
+        drag.id
+      );
+      setDragPreview({ id: drag.id, episodeTime: epTime });
+      dragLoopRafRef.current = requestAnimationFrame(tick);
+    };
+
+    dragLoopRafRef.current = requestAnimationFrame(tick);
+  }, [autoScrollDuringDrag, computeDragEpisodeTime, stopDragLoop]);
+
+  useEffect(() => () => stopDragLoop(), [stopDragLoop]);
+
+  const markerGrabOffset = useCallback(
+    (clientX: number, marker: AdMarker) => {
+      const dur = episodeDurationRef.current || 0;
+      const pps = ppsRef.current;
+      const { segments: segsForDrag, totalDuration: dragTotal } =
+        buildTimelineExcludingMarker(
+          markersRef.current,
+          marker.id,
+          dur,
+          adsCatalogRef.current,
+          performanceRef.current
+        );
+      const tl = episodeMarkerToTimeline(marker.startTime, segsForDrag);
+      const adId =
+        resolveAdForMarker(marker, { performance: performanceRef.current }) ??
+        marker.adIds[0];
+      const adDur = adDurationFor(adsCatalogRef.current, adId);
+      const layout = visualSpan(tl, adDur, dragTotal, pps);
+      return pointerTimelinePx(clientX) - layout.left;
+    },
+    [pointerTimelinePx]
+  );
+
+  const clientXToTimelineX = pointerTimelinePx;
 
   const seekFromClientX = useCallback(
     (clientX: number) => {
@@ -894,57 +993,32 @@ export function Timeline({
       const target = e.currentTarget as HTMLElement;
       target.setPointerCapture(e.pointerId);
 
+      dragClientXRef.current = e.clientX;
       dragRef.current = {
         id: marker.id,
         pointerId: e.pointerId,
-        startX: e.clientX,
-        initialEpisodeTime: marker.startTime,
+        grabOffsetTimelinePx: markerGrabOffset(e.clientX, marker),
       };
       onSelect(marker.id);
 
+      const initialTime = computeDragEpisodeTime(
+        e.clientX,
+        dragRef.current.grabOffsetTimelinePx,
+        marker.id
+      );
+      setDragPreview({ id: marker.id, episodeTime: initialTime });
+      startDragLoop();
+
       const onMove = (ev: PointerEvent) => {
-        const drag = dragRef.current;
-        if (!drag || drag.id !== marker.id) return;
-
+        if (!dragRef.current || dragRef.current.id !== marker.id) return;
         dragClientXRef.current = ev.clientX;
-        if (dragPreviewRafRef.current) return;
-        dragPreviewRafRef.current = requestAnimationFrame(() => {
-          dragPreviewRafRef.current = 0;
-          const currentDrag = dragRef.current;
-          if (!currentDrag || currentDrag.id !== marker.id) return;
-
-          const deltaPx = dragClientXRef.current - currentDrag.startX;
-          const dur = episodeDurationRef.current || 0;
-          const pps = ppsRef.current;
-          const { segments: segsForDrag } = buildTimelineExcludingMarker(
-            markersRef.current,
-            currentDrag.id,
-            dur,
-            adsCatalogRef.current,
-            performanceRef.current
-          );
-
-          const newEpisodeTime = episodeTimeFromPixelDelta(
-            currentDrag.initialEpisodeTime,
-            deltaPx,
-            segsForDrag,
-            dur,
-            pps
-          );
-          const clamped = Math.max(0, Math.min(newEpisodeTime, dur));
-          setDragPreview({ id: currentDrag.id, episodeTime: clamped });
-        });
       };
 
       const endDrag = (ev: PointerEvent) => {
         const drag = dragRef.current;
         if (!drag || drag.id !== marker.id) return;
 
-        if (dragPreviewRafRef.current) {
-          cancelAnimationFrame(dragPreviewRafRef.current);
-          dragPreviewRafRef.current = 0;
-        }
-
+        stopDragLoop();
         dragRef.current = null;
         try {
           target.releasePointerCapture(ev.pointerId);
@@ -955,29 +1029,15 @@ export function Timeline({
         window.removeEventListener("pointerup", endDrag);
         window.removeEventListener("pointercancel", endDrag);
 
-        const deltaPx = ev.clientX - drag.startX;
+        dragClientXRef.current = ev.clientX;
+        const clamped = computeDragEpisodeTime(
+          ev.clientX,
+          drag.grabOffsetTimelinePx,
+          drag.id
+        );
         setDragPreview(null);
 
-        if (Math.abs(deltaPx) < 3) return;
-
-        const dur = episodeDurationRef.current || 0;
-        const pps = ppsRef.current;
-        const { segments: segsForDrag } = buildTimelineExcludingMarker(
-          markersRef.current,
-          drag.id,
-          dur,
-          adsCatalogRef.current,
-          performanceRef.current
-        );
-
-        const newEpisodeTime = episodeTimeFromPixelDelta(
-          drag.initialEpisodeTime,
-          deltaPx,
-          segsForDrag,
-          dur,
-          pps
-        );
-        const clamped = Math.max(0, Math.min(newEpisodeTime, dur));
+        if (Math.abs(clamped - marker.startTime) < 0.05) return;
         onMarkerMove(drag.id, clamped);
       };
 
@@ -985,7 +1045,7 @@ export function Timeline({
       window.addEventListener("pointerup", endDrag);
       window.addEventListener("pointercancel", endDrag);
     },
-    [onMarkerMove, onSelect]
+    [computeDragEpisodeTime, markerGrabOffset, onMarkerMove, onSelect, startDragLoop, stopDragLoop]
   );
 
   return (
@@ -1086,7 +1146,6 @@ export function Timeline({
                     left={left}
                     width={width}
                     thumbnail={thumbnail}
-                    dragging={dragPreview?.id === marker.id}
                     selected={marker.id === selectedId}
                     onSelect={() => onSelect(marker.id)}
                     onPointerDown={(e) => onMarkerPointerDown(e, marker)}

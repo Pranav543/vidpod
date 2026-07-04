@@ -142,6 +142,61 @@ export function episodeTimeFromPixelDelta(
   return initialEpisodeTime + deltaPx * secPerPx;
 }
 
+/** Inverse of episodeMarkerToTimeline for drag placement (segments exclude dragged marker). */
+export function timelinePositionToEpisodeMarkerTime(
+  timelineSec: number,
+  segments: TimelineSegment[],
+  episodeDuration: number
+): number {
+  if (segments.length === 0) {
+    return Math.max(0, Math.min(timelineSec, episodeDuration));
+  }
+
+  const T = Math.max(0, timelineSec);
+
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
+
+    if (T < seg.timelineStart) {
+      if (seg.type === "episode") return seg.episodeStart;
+      for (let j = i - 1; j >= 0; j--) {
+        if (segments[j].type === "episode") return segments[j].episodeEnd;
+      }
+      return 0;
+    }
+
+    if (T >= seg.timelineStart && T < seg.timelineEnd) {
+      if (seg.type === "episode") {
+        return seg.episodeStart + (T - seg.timelineStart);
+      }
+      for (let j = i - 1; j >= 0; j--) {
+        if (segments[j].type === "episode") return segments[j].episodeEnd;
+      }
+      return 0;
+    }
+
+    if (T === seg.timelineEnd && seg.type === "episode") {
+      return seg.episodeEnd;
+    }
+  }
+
+  for (let i = segments.length - 1; i >= 0; i--) {
+    if (segments[i].type === "episode") return segments[i].episodeEnd;
+  }
+  return episodeDuration;
+}
+
+export function episodeMarkerTimeFromTrackPx(
+  markerLeftPx: number,
+  segments: TimelineSegment[],
+  episodeDuration: number,
+  pixelsPerSecond: number
+): number {
+  if (pixelsPerSecond <= 0) return 0;
+  const timelineSec = Math.max(0, markerLeftPx / pixelsPerSecond);
+  return timelinePositionToEpisodeMarkerTime(timelineSec, segments, episodeDuration);
+}
+
 export function getPlayheadLabels(
   timelineTime: number,
   episodeDuration: number,

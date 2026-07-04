@@ -1,5 +1,6 @@
 "use client";
 
+import { DEFAULT_EPISODE, DEFAULT_EPISODE_DISPLAY_NAME } from "@/lib/default-episode";
 import { ChevronLeft } from "lucide-react";
 
 type Props = {
@@ -8,6 +9,7 @@ type Props = {
 
 function episodeTitle(filename: string | null): string {
   if (!filename) return "Upload an episode to get started";
+  if (filename === DEFAULT_EPISODE) return DEFAULT_EPISODE_DISPLAY_NAME;
   const base = filename.split("/").pop()?.replace(/\.[^.]+$/, "") ?? filename;
   const pretty = base.replace(/-/g, " ").replace(/_/g, " ");
   if (pretty.length > 20) {

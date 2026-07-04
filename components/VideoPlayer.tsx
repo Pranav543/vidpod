@@ -5,6 +5,7 @@ import { type ReactNode, RefObject } from "react";
 type VideoPlayerProps = {
   episodeVideoRef: RefObject<HTMLVideoElement | null>;
   adVideoRef: RefObject<HTMLVideoElement | null>;
+  episodeSrc?: string;
   showingAd: boolean;
   playing: boolean;
   episodeReady: boolean;
@@ -258,6 +259,7 @@ function VideoControls({
 export function VideoPlayer({
   episodeVideoRef,
   adVideoRef,
+  episodeSrc,
   showingAd,
   playing,
   episodeReady,
@@ -275,6 +277,7 @@ export function VideoPlayer({
       <div className="relative min-h-0 flex-1 overflow-hidden rounded-2xl bg-[#111827]">
         <video
           ref={episodeVideoRef}
+          src={episodeSrc || undefined}
           className={`absolute inset-0 h-full w-full object-cover ${
             showingAd ? "pointer-events-none opacity-0" : ""
           }`}
