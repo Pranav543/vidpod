@@ -467,10 +467,12 @@ export default function VidpodPage() {
                 markers={markers}
                 selectedId={selectedId}
                 episodeReady={player.episodeReady}
+                episodeDuration={player.episodeDuration}
                 onSelect={handleSelectMarker}
                 onCreateMarker={() => setCreateMarkerOpen(true)}
                 onAutoPlace={handleAutoPlace}
                 onEdit={setAdPickerMarkerId}
+                onTimeChange={handleMarkerMove}
                 onViewAbResults={setAbResultsMarkerId}
                 onDelete={handleDelete}
               />

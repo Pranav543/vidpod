@@ -9,10 +9,12 @@ type MarkerPanelProps = {
   markers: AdMarker[];
   selectedId: string | null;
   episodeReady: boolean;
+  episodeDuration: number;
   onSelect: (id: string) => void;
   onCreateMarker: () => void;
   onAutoPlace: () => void;
   onEdit: (id: string) => void;
+  onTimeChange: (id: string, startTime: number) => void;
   onViewAbResults: (id: string) => void;
   onDelete: (id: string) => void;
 };
@@ -21,10 +23,12 @@ export function MarkerPanel({
   markers,
   selectedId,
   episodeReady,
+  episodeDuration,
   onSelect,
   onCreateMarker,
   onAutoPlace,
   onEdit,
+  onTimeChange,
   onViewAbResults,
   onDelete,
 }: MarkerPanelProps) {
@@ -54,8 +58,10 @@ export function MarkerPanel({
             index={i + 1}
             marker={m}
             selected={m.id === selectedId}
+            episodeDuration={episodeDuration}
             onSelect={() => onSelect(m.id)}
             onEdit={() => onEdit(m.id)}
+            onTimeChange={(startTime) => onTimeChange(m.id, startTime)}
             onViewAbResults={() => onViewAbResults(m.id)}
             showAbResults={m.mode === "ab" && (m.adIds?.length ?? 0) >= 2}
             onDelete={() => onDelete(m.id)}

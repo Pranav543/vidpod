@@ -1,8 +1,9 @@
 "use client";
 
-import { formatTimecode } from "@/lib/format-time";
+import { formatTimecode, parseTimecode } from "@/lib/format-time";
 import { MODE_COLORS } from "@/lib/timeline-visual";
 import type { AdMarker, AdMode } from "@/lib/types";
+import { useEffect, useState } from "react";
 import { IconTrash2, figmaIconProps } from "./icons";
 
 const MODE_LABELS: Record<AdMode, string> = {
@@ -15,8 +16,10 @@ type MarkerRowProps = {
   index: number;
   marker: AdMarker;
   selected: boolean;
+  episodeDuration: number;
   onSelect: () => void;
   onEdit: () => void;
+  onTimeChange: (startTime: number) => void;
   onViewAbResults?: () => void;
   onDelete: () => void;
   showAbResults?: boolean;
@@ -26,14 +29,40 @@ export function MarkerRow({
   index,
   marker,
   selected,
+  episodeDuration,
   onSelect,
   onEdit,
+  onTimeChange,
   onViewAbResults,
   onDelete,
   showAbResults,
 }: MarkerRowProps) {
   const colors = MODE_COLORS[marker.mode];
   const isAb = marker.mode === "ab";
+  const [draft, setDraft] = useState(() => formatTimecode(marker.startTime));
+  const [editing, setEditing] = useState(false);
+
+  useEffect(() => {
+    if (!editing) {
+      setDraft(formatTimecode(marker.startTime));
+    }
+  }, [marker.startTime, editing]);
+
+  const commitTime = () => {
+    const parsed = parseTimecode(draft);
+    if (parsed === null) {
+      setDraft(formatTimecode(marker.startTime));
+      return;
+    }
+
+    const max = Math.max(0, episodeDuration);
+    const clamped = Math.max(0, Math.min(parsed, max));
+    setDraft(formatTimecode(clamped));
+
+    if (Math.abs(clamped - marker.startTime) >= 0.05) {
+      onTimeChange(clamped);
+    }
+  };
 
   return (
     <div
@@ -47,9 +76,37 @@ export function MarkerRow({
     >
       <span className="text-center text-[13px] font-medium text-[#9ca3af]">{index}</span>
 
-      <div className="rounded-sm border border-[#e5e7eb] bg-white px-2 py-1.5 text-center text-[13px] tabular-nums text-[#111827]">
-        {formatTimecode(marker.startTime)}
-      </div>
+      <input
+        type="text"
+        inputMode="numeric"
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onFocus={(e) => {
+          e.stopPropagation();
+          setEditing(true);
+          e.currentTarget.select();
+        }}
+        onBlur={() => {
+          setEditing(false);
+          commitTime();
+        }}
+        onKeyDown={(e) => {
+          e.stopPropagation();
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+          if (e.key === "Escape") {
+            setDraft(formatTimecode(marker.startTime));
+            setEditing(false);
+            e.currentTarget.blur();
+          }
+        }}
+        className="w-full rounded-sm border border-[#e5e7eb] bg-white px-2 py-1.5 text-center text-[13px] tabular-nums text-[#111827] outline-none focus:border-[#9ca3af] focus:ring-1 focus:ring-[#d1d5db]"
+        aria-label={`Marker ${index} start time`}
+      />
 
       <span
         className={`inline-flex w-fit rounded-sm px-2.5 py-1 text-[11px] font-semibold ${colors.badge} ${colors.text}`}
