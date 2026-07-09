@@ -29,8 +29,11 @@ type AdPickerModalProps = {
   mode: AdMode;
   ads: Ad[];
   selectedIds: string[];
+  /** When true, selections are staged locally until Done/onConfirm — no marker exists yet. */
+  createMode?: boolean;
   onClose: () => void;
   onSave: (adIds: string[]) => void;
+  onConfirm?: (adIds: string[]) => void;
 };
 
 function modalTitle(mode: AdMode): string {
@@ -56,8 +59,10 @@ export function AdPickerModal({
   mode,
   ads,
   selectedIds,
+  createMode = false,
   onClose,
   onSave,
+  onConfirm,
 }: AdPickerModalProps) {
   const [query, setQuery] = useState("");
   const [folderOpen, setFolderOpen] = useState<Record<string, boolean>>({
@@ -75,6 +80,10 @@ export function AdPickerModal({
 
   const toggle = (id: string) => {
     if (isStatic) {
+      if (createMode && onConfirm) {
+        onConfirm([id]);
+        return;
+      }
       onSave([id]);
       onClose();
       return;
@@ -84,6 +93,19 @@ export function AdPickerModal({
     } else {
       onSave([...selectedIds, id]);
     }
+  };
+
+  const handlePrimary = () => {
+    if (createMode) {
+      if (!isStatic && selectedIds.length === 0) return;
+      if (isStatic && selectedIds.length === 0) {
+        onClose();
+        return;
+      }
+      onConfirm?.(selectedIds);
+      return;
+    }
+    if (selectedIds.length > 0 || isStatic) onClose();
   };
 
   if (!open) return null;
@@ -300,9 +322,7 @@ export function AdPickerModal({
             )}
             <button
               type="button"
-              onClick={() => {
-                if (selectedIds.length > 0 || isStatic) onClose();
-              }}
+              onClick={handlePrimary}
               disabled={!isStatic && selectedIds.length === 0}
               className="rounded-lg bg-[#111827] px-4 py-2 text-sm font-medium text-white hover:bg-[#1f2937] disabled:opacity-40"
             >

@@ -3,6 +3,14 @@
  */
 export type { VidpodIconComponent, VidpodIconProps, VidpodLucideIcon } from "./fontawesome";
 export {
+  IconNavAds,
+  IconNavAnalytics,
+  IconNavChannels,
+  IconNavDashboard,
+  IconNavImport,
+  IconNavSettings,
+} from "./sidebar-nav";
+export {
   IconArchive,
   IconBell,
   IconChartColumn,

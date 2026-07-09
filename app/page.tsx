@@ -60,6 +60,11 @@ export default function VidpodPage() {
   const [adPickerMarkerId, setAdPickerMarkerId] = useState<string | null>(null);
   const [abResultsMarkerId, setAbResultsMarkerId] = useState<string | null>(null);
   const [createMarkerOpen, setCreateMarkerOpen] = useState(false);
+  const [pendingMarkerCreate, setPendingMarkerCreate] = useState<{
+    startTime: number;
+    mode: AdMode;
+    selectedIds: string[];
+  } | null>(null);
   const editorStackRef = useRef<HTMLDivElement>(null);
   const [timelineMaxCardHeight, setTimelineMaxCardHeight] = useState<number>();
   const [episodeLoading, setEpisodeLoading] = useState(true);
@@ -285,13 +290,17 @@ export default function VidpodPage() {
     performance,
   ]);
 
-  const createMarkerAt = async (startTime: number, mode: AdMode) => {
+  const createMarkerAt = async (
+    startTime: number,
+    mode: AdMode,
+    adIds: string[] = []
+  ) => {
     if (!player.episodeReady) return;
 
     const res = await fetch("/api/markers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ startTime, mode, adIds: [] }),
+      body: JSON.stringify({ startTime, mode, adIds }),
     });
     if (!res.ok) return;
     const created = (await res.json()) as AdMarker;
@@ -304,7 +313,9 @@ export default function VidpodPage() {
     });
     markersRef.current = nextMarkers;
     setSelectedId(created.id);
-    setAdPickerMarkerId(created.id);
+    if (adIds.length === 0) {
+      setAdPickerMarkerId(created.id);
+    }
     scheduleSync();
 
     const { segments } = buildTimeline(
@@ -318,7 +329,18 @@ export default function VidpodPage() {
 
   const handleCreateWithMode = (mode: AdMode) => {
     setCreateMarkerOpen(false);
-    void createMarkerAt(episodeTimeAtPlayhead(), mode);
+    setPendingMarkerCreate({
+      startTime: episodeTimeAtPlayhead(),
+      mode,
+      selectedIds: [],
+    });
+  };
+
+  const handleConfirmPendingMarker = (adIds: string[]) => {
+    if (!pendingMarkerCreate || adIds.length === 0) return;
+    const { startTime, mode } = pendingMarkerCreate;
+    setPendingMarkerCreate(null);
+    void createMarkerAt(startTime, mode, adIds);
   };
 
   const handleAutoPlace = () => {
@@ -408,7 +430,12 @@ export default function VidpodPage() {
     if (updated) await persistMarker(updated, persistGenRef.current);
   };
 
-  const modalOpen = !!(adPickerMarkerId || createMarkerOpen || abResultsMarkerId);
+  const modalOpen = !!(
+    adPickerMarkerId ||
+    createMarkerOpen ||
+    abResultsMarkerId ||
+    pendingMarkerCreate
+  );
 
   useKeyboardShortcuts(
     {
@@ -526,7 +553,24 @@ export default function VidpodPage() {
         onSelect={handleCreateWithMode}
       />
 
-      {adPickerMarker && (
+      {pendingMarkerCreate && (
+        <AdPickerModal
+          open
+          createMode
+          mode={pendingMarkerCreate.mode}
+          ads={adsCatalog}
+          selectedIds={pendingMarkerCreate.selectedIds}
+          onClose={() => setPendingMarkerCreate(null)}
+          onSave={(adIds) => {
+            setPendingMarkerCreate((prev) =>
+              prev ? { ...prev, selectedIds: adIds } : null
+            );
+          }}
+          onConfirm={handleConfirmPendingMarker}
+        />
+      )}
+
+      {adPickerMarker && !pendingMarkerCreate && (
         <AdPickerModal
           open
           mode={adPickerMarker.mode}

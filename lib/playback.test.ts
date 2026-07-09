@@ -64,6 +64,15 @@ describe("buildTimeline", () => {
     expect(moved).toBeLessThan(90);
   });
 
+  it("places ad marker at timeline start when inserted at episode time 0", () => {
+    const startMarkers: AdMarker[] = [
+      { id: "m0", startTime: 0, mode: "static", adIds: ["ad-2"] },
+    ];
+    const { segments } = buildTimeline(startMarkers, 120, catalog, PERF);
+    expect(segments[0]?.type).toBe("ad");
+    expect(episodeMarkerToTimeline(0, segments)).toBe(0);
+  });
+
   it("round-trips timeline px to episode marker time during drag", () => {
     const { segments: withoutM1, totalDuration } = buildTimelineExcludingMarker(
       markers,

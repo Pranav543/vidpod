@@ -1,29 +1,26 @@
 "use client";
 
 import {
-  IconArchive,
-  IconChartColumn,
   IconChevronDown,
-  IconCircle,
-  IconCircleDollarSign,
   IconCircleHelp,
-  IconDownload,
-  IconHome,
   IconLightbulb,
-  IconPlus,
+  IconNavAds,
+  IconNavAnalytics,
+  IconNavChannels,
+  IconNavDashboard,
+  IconNavImport,
+  IconNavSettings,
   IconUsers,
-  figmaIconProps,
 } from "./icons";
 import { useRef, useState } from "react";
-import { VidpodLogo } from "./VidpodLogo";
 
 const NAV = [
-  { icon: IconHome, label: "Dashboard" },
-  { icon: IconChartColumn, label: "Analytics" },
-  { icon: IconCircleDollarSign, label: "Ads", active: true },
-  { icon: IconCircle, label: "Channels" },
-  { icon: IconDownload, label: "Import" },
-  { icon: IconArchive, label: "Settings" },
+  { icon: IconNavDashboard, label: "Dashboard" },
+  { icon: IconNavAnalytics, label: "Analytics", active: true },
+  { icon: IconNavAds, label: "Ads" },
+  { icon: IconNavChannels, label: "Channels" },
+  { icon: IconNavImport, label: "Import" },
+  { icon: IconNavSettings, label: "Settings" },
 ];
 
 type SidebarProps = {
@@ -58,18 +55,13 @@ export function Sidebar({
   };
 
   return (
-    <aside className="flex h-screen w-[248px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e7eb] bg-[#fafafa]">
-      <div className="px-5 pt-5 pb-3">
-        <VidpodLogo />
-      </div>
-
-      <div className="px-4">
+    <aside className="flex h-screen w-[248px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e7eb] bg-[#f8f8f8]">
+      <div className="px-4 pt-5">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-[#111827] text-[13px] font-medium text-white transition hover:bg-[#1f2937]"
+          className="flex h-[38px] w-full items-center justify-center rounded-lg bg-black text-[13px] font-medium text-white transition hover:bg-[#1a1a1a]"
         >
-          <IconPlus className="h-3.5 w-3.5" strokeWidth={2.5} />
           Create an episode
         </button>
         <input
@@ -81,12 +73,18 @@ export function Sidebar({
         />
 
         <div className="relative mt-2.5">
-          <div className="flex items-center gap-2 rounded-md border border-[#e5e7eb] bg-white px-2.5 py-2">
-            <div className="h-6 w-6 shrink-0 overflow-hidden rounded bg-gradient-to-br from-amber-100 to-orange-200">
-              <div className="h-full w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PHJlY3Qgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iNCIgZmlsbD0iI0Y5Q0E3OCIvPjx0ZXh0IHg9IjEyIiB5PSIxNSIgZm9udC1zaXplPSI4IiBmaWxsPSIjOTI0MDAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5EPC90ZXh0Pjwvc3ZnPg==')] bg-cover" />
+          <div className="flex h-[38px] items-center gap-2.5 rounded-lg border border-[#e5e7eb] bg-white px-2.5">
+            <div className="h-[22px] w-[22px] shrink-0 overflow-hidden rounded-[3px] bg-[#1a1a1a]">
+              <div
+                className="h-full w-full bg-cover bg-center"
+                style={{
+                  backgroundImage:
+                    "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'%3E%3Crect width='44' height='44' fill='%231a1a1a'/%3E%3Crect x='0' y='28' width='44' height='16' fill='%23c2410c'/%3E%3Ctext x='22' y='38' font-size='7' font-family='system-ui,sans-serif' font-weight='700' fill='white' text-anchor='middle'%3EDOAC%3C/text%3E%3Ccircle cx='22' cy='16' r='10' fill='%23d4a574'/%3E%3C/svg%3E\")",
+                }}
+              />
             </div>
             <select
-              className="min-w-0 flex-1 appearance-none truncate bg-transparent pr-5 text-[13px] font-medium text-[#111827] outline-none"
+              className="min-w-0 flex-1 appearance-none truncate bg-transparent pr-4 text-[13px] font-medium text-[#374151] outline-none"
               value={episodeFilename ?? ""}
               onChange={(e) => {
                 const v = e.target.value;
@@ -102,32 +100,35 @@ export function Sidebar({
                 </option>
               ))}
             </select>
-            <IconChevronDown className="pointer-events-none absolute right-5 h-3.5 w-3.5 text-[#9ca3af]" />
+            <IconChevronDown
+              className="pointer-events-none absolute right-3 h-3 w-3 text-[#9ca3af]"
+              size={12}
+            />
           </div>
         </div>
       </div>
 
-      <nav className="mt-5 flex flex-col gap-0.5 px-3">
+      <nav className="mt-5 flex flex-col gap-0.5 px-4">
         {NAV.map(({ icon: Icon, label, active }) => (
           <button
             key={label}
             type="button"
-            className={`relative flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] transition ${
+            className={`flex items-center gap-2.5 rounded-lg px-2 py-[7px] text-[13px] transition ${
               active
                 ? "font-semibold text-[#111827]"
-                : "font-medium text-[#6b7280] hover:bg-white/80 hover:text-[#374151]"
+                : "font-medium text-[#6b7280] hover:text-[#374151]"
             }`}
           >
-            {active && (
-              <span className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-[#111827]" />
-            )}
-            <Icon {...figmaIconProps({ active })} />
+            <Icon
+              size={17}
+              className={active ? "text-[#111827]" : "text-[#6b7280]"}
+            />
             {label}
           </button>
         ))}
       </nav>
 
-      <div className="mx-3 mt-5 rounded-xl border border-[#e5e7eb] bg-white p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <div className="mx-4 mt-5 rounded-xl border border-[#e5e7eb] bg-white p-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
         <div className="flex items-start justify-between">
           <p className="text-[11px] font-medium text-[#9ca3af]">Weekly plays</p>
           <span className="flex items-center gap-0.5 rounded-sm bg-[#ecfdf5] px-1.5 py-0.5 text-[10px] font-semibold text-[#059669]">
@@ -188,7 +189,7 @@ export function Sidebar({
               type="button"
               className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] text-[#6b7280] transition hover:bg-white hover:text-[#374151]"
             >
-              <Icon {...figmaIconProps({ size: 14 })} />
+              <Icon size={14} />
               {label}
             </button>
           ))}

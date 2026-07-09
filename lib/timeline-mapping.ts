@@ -80,6 +80,18 @@ export function episodeMarkerToTimeline(
   markerStart: number,
   segments: TimelineSegment[]
 ): number {
+  // Ads sit on the timeline before the episode block at the same file timestamp.
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
+    if (seg.type !== "ad") continue;
+
+    const prev = i > 0 ? segments[i - 1] : null;
+    const insertAt = prev?.type === "episode" ? prev.episodeEnd : 0;
+    if (Math.abs(insertAt - markerStart) < 0.001) {
+      return seg.timelineStart;
+    }
+  }
+
   for (const seg of segments) {
     if (seg.type === "episode") {
       if (markerStart >= seg.episodeStart && markerStart <= seg.episodeEnd) {
