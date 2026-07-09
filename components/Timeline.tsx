@@ -596,6 +596,8 @@ export function Timeline({
   const dragClientXRef = useRef(0);
   const scrubbingRef = useRef(false);
   const playheadScrubbingRef = useRef(false);
+  const scrubClientXRef = useRef(0);
+  const scrubLoopRafRef = useRef(0);
   const [dragPreview, setDragPreview] = useState<{
     id: string;
     episodeTime: number;
@@ -682,7 +684,16 @@ export function Timeline({
   );
 
   useEffect(() => {
-    if (!playing || dragRef.current || !scrollRef.current || totalDuration <= 0) return;
+    if (
+      !playing ||
+      dragRef.current ||
+      playheadScrubbingRef.current ||
+      scrubbingRef.current ||
+      !scrollRef.current ||
+      totalDuration <= 0
+    ) {
+      return;
+    }
     const el = scrollRef.current;
     const margin = 80;
     const viewLeft = el.scrollLeft;
@@ -780,6 +791,30 @@ export function Timeline({
     }
   }, []);
 
+  const stopScrubLoop = useCallback(() => {
+    if (scrubLoopRafRef.current) {
+      cancelAnimationFrame(scrubLoopRafRef.current);
+      scrubLoopRafRef.current = 0;
+    }
+  }, []);
+
+  const seekFromClientXRef = useRef<(clientX: number) => void>(() => {});
+
+  const startScrubLoop = useCallback(() => {
+    stopScrubLoop();
+
+    const tick = () => {
+      if (!playheadScrubbingRef.current && !scrubbingRef.current) return;
+
+      const clientX = scrubClientXRef.current;
+      autoScrollDuringDrag(clientX);
+      seekFromClientXRef.current(clientX);
+      scrubLoopRafRef.current = requestAnimationFrame(tick);
+    };
+
+    scrubLoopRafRef.current = requestAnimationFrame(tick);
+  }, [autoScrollDuringDrag, stopScrubLoop]);
+
   const stopDragLoop = useCallback(() => {
     if (dragLoopRafRef.current) {
       cancelAnimationFrame(dragLoopRafRef.current);
@@ -844,6 +879,10 @@ export function Timeline({
     [clientXToTimelineX, onSeek, pixelsPerSecond, totalDuration]
   );
 
+  seekFromClientXRef.current = seekFromClientX;
+
+  useEffect(() => () => stopScrubLoop(), [stopScrubLoop]);
+
   const onPlayheadPointerDown = useCallback(
     (e: React.PointerEvent) => {
       if (dragRef.current || !episodeReady || totalDuration <= 0) return;
@@ -854,15 +893,18 @@ export function Timeline({
       const handle = e.currentTarget as HTMLElement;
       handle.setPointerCapture(e.pointerId);
       playheadScrubbingRef.current = true;
+      scrubClientXRef.current = e.clientX;
       seekFromClientX(e.clientX);
+      startScrubLoop();
 
       const onMove = (ev: PointerEvent) => {
         if (!playheadScrubbingRef.current) return;
-        seekFromClientX(ev.clientX);
+        scrubClientXRef.current = ev.clientX;
       };
 
       const onUp = (ev: PointerEvent) => {
         playheadScrubbingRef.current = false;
+        stopScrubLoop();
         try {
           handle.releasePointerCapture(ev.pointerId);
         } catch {
@@ -877,7 +919,7 @@ export function Timeline({
       window.addEventListener("pointerup", onUp);
       window.addEventListener("pointercancel", onUp);
     },
-    [episodeReady, seekFromClientX, totalDuration]
+    [episodeReady, seekFromClientX, startScrubLoop, stopScrubLoop, totalDuration]
   );
 
   const onTrackPointerDown = useCallback(
@@ -900,15 +942,18 @@ export function Timeline({
 
       scrubbingRef.current = true;
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      scrubClientXRef.current = e.clientX;
       seekFromClientX(e.clientX);
+      startScrubLoop();
 
       const onMove = (ev: PointerEvent) => {
         if (!scrubbingRef.current) return;
-        seekFromClientX(ev.clientX);
+        scrubClientXRef.current = ev.clientX;
       };
 
       const onUp = (ev: PointerEvent) => {
         scrubbingRef.current = false;
+        stopScrubLoop();
         try {
           (e.currentTarget as HTMLElement).releasePointerCapture(ev.pointerId);
         } catch {
@@ -923,7 +968,15 @@ export function Timeline({
       window.addEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
     },
-    [clientXToTimelineX, episodeReady, playheadLeft, seekFromClientX, totalDuration]
+    [
+      clientXToTimelineX,
+      episodeReady,
+      playheadLeft,
+      seekFromClientX,
+      startScrubLoop,
+      stopScrubLoop,
+      totalDuration,
+    ]
   );
 
   const onMarkerPointerDown = useCallback(
