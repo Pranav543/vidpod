@@ -13,6 +13,7 @@ import {
   IconUsers,
 } from "./icons";
 import { useRef, useState } from "react";
+import { VidpodLogo } from "./VidpodLogo";
 
 const NAV = [
   { icon: IconNavDashboard, label: "Dashboard" },
@@ -56,7 +57,11 @@ export function Sidebar({
 
   return (
     <aside className="flex h-screen w-[248px] shrink-0 flex-col overflow-y-auto border-r border-[#e5e7eb] bg-[#f8f8f8]">
-      <div className="px-4 pt-5">
+      <div className="px-5 pt-5 pb-3">
+        <VidpodLogo />
+      </div>
+
+      <div className="px-4">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
