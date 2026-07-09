@@ -2,12 +2,10 @@
 
 import type { AdMode } from "@/lib/types";
 import {
-  IconCircleDashed,
-  IconFlaskConical,
-  IconTarget,
+  IconMarkerAbTest,
+  IconMarkerAuto,
+  IconMarkerStatic,
   IconX,
-  type VidpodLucideIcon,
-  figmaIconProps,
 } from "./icons";
 import { useState } from "react";
 
@@ -15,25 +13,25 @@ const OPTIONS: {
   mode: AdMode;
   title: string;
   description: string;
-  icon: VidpodLucideIcon;
+  icon: typeof IconMarkerAuto;
 }[] = [
   {
     mode: "auto",
     title: "Auto",
     description: "Automatic ad insertions",
-    icon: IconCircleDashed,
+    icon: IconMarkerAuto,
   },
   {
     mode: "static",
     title: "Static",
     description: "A marker for a specific ad that you select",
-    icon: IconTarget,
+    icon: IconMarkerStatic,
   },
   {
     mode: "ab",
     title: "A/B test",
     description: "Compare the performance of multiple ads",
-    icon: IconFlaskConical,
+    icon: IconMarkerAbTest,
   },
 ];
 
@@ -89,7 +87,7 @@ export function CreateMarkerModal({ open, onClose, onSelect }: Props) {
                   }`}
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e5e7eb] bg-white">
-                    <Icon {...figmaIconProps({ size: 20, className: "text-[#6b7280]" })} />
+                    <Icon size={20} className="text-[#6b7280]" />
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-[#111827]">{title}</p>

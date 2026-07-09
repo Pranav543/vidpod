@@ -3,6 +3,11 @@
  */
 export type { VidpodIconComponent, VidpodIconProps, VidpodLucideIcon } from "./fontawesome";
 export {
+  IconMarkerAbTest,
+  IconMarkerAuto,
+  IconMarkerStatic,
+} from "./marker-mode";
+export {
   IconNavAds,
   IconNavAnalytics,
   IconNavChannels,

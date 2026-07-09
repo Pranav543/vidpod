@@ -83,10 +83,10 @@ export function MarkerPanel({
           type="button"
           onClick={onAutoPlace}
           disabled={!episodeReady}
-          className="flex h-9 w-full items-center justify-center gap-2 rounded-md border border-[#e5e7eb] bg-white text-[13px] font-medium text-[#374151] transition hover:bg-[#f9fafb] disabled:opacity-40"
+          className="flex h-9 w-full items-center justify-center gap-1 rounded-md border border-[#e5e7eb] bg-white text-[13px] font-medium text-[#374151] transition hover:bg-[#f9fafb] disabled:opacity-40"
         >
+          Automatically place
           <IconSparkles {...figmaIconProps({ size: 14, className: "text-[#9ca3af]" })} />
-          Automatically find ad breaks
         </button>
         <ExportButton
           disabled={!canExport}
