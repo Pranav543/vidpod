@@ -12,14 +12,58 @@ const MODE_LABELS: Record<AdMode, string> = {
   ab: "A/B",
 };
 
+function RowDragHandle({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) => void }) {
+  const dotR = 1.75;
+  const gap = 3;
+  const cols = 2;
+  const rows = 3;
+  const w = cols * dotR * 2 + (cols - 1) * gap;
+  const h = rows * dotR * 2 + (rows - 1) * gap;
+  const dots: { cx: number; cy: number }[] = [];
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      dots.push({
+        cx: dotR + col * (dotR * 2 + gap),
+        cy: dotR + row * (dotR * 2 + gap),
+      });
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label="Drag to reorder"
+      onPointerDown={onPointerDown}
+      onClick={(e) => e.stopPropagation()}
+      className="flex h-8 w-5 shrink-0 cursor-grab touch-none items-center justify-center rounded-sm text-[#9ca3af] transition hover:bg-[#f3f4f6] hover:text-[#6b7280] active:cursor-grabbing"
+    >
+      <svg
+        width={w}
+        height={h}
+        viewBox={`0 0 ${w} ${h}`}
+        className="block"
+        aria-hidden
+      >
+        {dots.map((dot, i) => (
+          <circle key={i} cx={dot.cx} cy={dot.cy} r={dotR} fill="currentColor" />
+        ))}
+      </svg>
+    </button>
+  );
+}
+
 type MarkerRowProps = {
   index: number;
   marker: AdMarker;
   selected: boolean;
   episodeDuration: number;
+  isDragging?: boolean;
+  isDropTarget?: boolean;
   onSelect: () => void;
   onEdit: () => void;
   onTimeChange: (startTime: number) => void;
+  onDragHandlePointerDown: (e: React.PointerEvent) => void;
   onViewAbResults?: () => void;
   onDelete: () => void;
   showAbResults?: boolean;
@@ -30,9 +74,12 @@ export function MarkerRow({
   marker,
   selected,
   episodeDuration,
+  isDragging = false,
+  isDropTarget = false,
   onSelect,
   onEdit,
   onTimeChange,
+  onDragHandlePointerDown,
   onViewAbResults,
   onDelete,
   showAbResults,
@@ -66,14 +113,23 @@ export function MarkerRow({
 
   return (
     <div
-      className={`grid grid-cols-[18px_88px_1fr_auto_32px] items-center gap-2 rounded-lg px-1.5 py-1.5 transition ${
-        selected ? "bg-[#f9fafb] ring-1 ring-[#e5e7eb]" : "hover:bg-[#fafafa]"
+      data-marker-row
+      className={`grid grid-cols-[20px_18px_88px_1fr_auto_32px] items-center gap-2 rounded-lg px-1.5 py-1.5 transition ${
+        isDragging
+          ? "opacity-40"
+          : isDropTarget
+            ? "bg-[#f3f4f6] ring-1 ring-[#d1d5db]"
+            : selected
+              ? "bg-[#f9fafb] ring-1 ring-[#e5e7eb]"
+              : "hover:bg-[#fafafa]"
       }`}
       onClick={onSelect}
       onKeyDown={(e) => e.key === "Enter" && onSelect()}
       role="button"
       tabIndex={0}
     >
+      <RowDragHandle onPointerDown={onDragHandlePointerDown} />
+
       <span className="text-center text-[13px] font-medium text-[#9ca3af]">{index}</span>
 
       <input

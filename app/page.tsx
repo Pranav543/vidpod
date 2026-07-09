@@ -22,6 +22,11 @@ import {
 } from "@/lib/timeline-mapping";
 import { buildTimeline } from "@/lib/timeline-build";
 import { syncMarkersToServer } from "@/lib/sync-markers";
+import {
+  markersWithChangedTimes,
+  reorderMarkersRedistributingTimes,
+  sortMarkersByTime,
+} from "@/lib/marker-reorder";
 import { DEFAULT_EPISODE } from "@/lib/default-episode";
 import { staticMediaUrl } from "@/lib/media-url";
 import type { Ad, AdMarker, AdMode } from "@/lib/types";
@@ -390,9 +395,9 @@ export default function VidpodPage() {
     let nextMarkers: AdMarker[] = [];
     flushSync(() => {
       updateMarkers((prev) => {
-        nextMarkers = prev
-          .map((m) => (m.id === id ? { ...m, startTime } : m))
-          .sort((a, b) => a.startTime - b.startTime);
+        nextMarkers = sortMarkersByTime(
+          prev.map((m) => (m.id === id ? { ...m, startTime } : m))
+        );
         updated = nextMarkers.find((m) => m.id === id);
         return nextMarkers;
       });
@@ -407,6 +412,44 @@ export default function VidpodPage() {
         performance
       );
       player.seek(episodeMarkerToTimeline(startTime, segments));
+    }
+  };
+
+  const handleMarkerReorder = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+
+    let nextMarkers: AdMarker[] = [];
+    let changed: AdMarker[] = [];
+    let movedId: string | null = null;
+
+    flushSync(() => {
+      updateMarkers((prev) => {
+        const before = sortMarkersByTime(prev);
+        nextMarkers = reorderMarkersRedistributingTimes(before, fromIndex, toIndex);
+        changed = markersWithChangedTimes(before, nextMarkers);
+        movedId = nextMarkers[toIndex]?.id ?? null;
+        return nextMarkers;
+      });
+    });
+
+    markersRef.current = nextMarkers;
+    if (movedId) setSelectedId(movedId);
+
+    const gen = persistGenRef.current;
+    await Promise.all(changed.map((marker) => persistMarker(marker, gen)));
+    scheduleSync();
+
+    if (movedId && player.episodeReady) {
+      const moved = nextMarkers.find((m) => m.id === movedId);
+      if (moved) {
+        const { segments } = buildTimeline(
+          nextMarkers,
+          player.episodeDuration,
+          adsCatalog,
+          performance
+        );
+        player.seek(episodeMarkerToTimeline(moved.startTime, segments));
+      }
     }
   };
 
@@ -500,6 +543,7 @@ export default function VidpodPage() {
                 onAutoPlace={handleAutoPlace}
                 onEdit={setAdPickerMarkerId}
                 onTimeChange={handleMarkerMove}
+                onReorder={handleMarkerReorder}
                 onViewAbResults={setAbResultsMarkerId}
                 onDelete={handleDelete}
               />
